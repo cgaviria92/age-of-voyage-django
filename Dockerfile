@@ -17,5 +17,8 @@ COPY . /app/
 # Crear directorio para archivos estáticos
 RUN mkdir -p /app/staticfiles
 
+# Hacer ejecutable el script de entrada
+RUN chmod +x /app/entrypoint.sh
+
 # Comando por defecto
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+CMD ["/app/entrypoint.sh"]

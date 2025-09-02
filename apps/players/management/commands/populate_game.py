@@ -14,8 +14,26 @@ from apps.missions.models import Mission
 class Command(BaseCommand):
     help = 'Poblar la base de datos con datos iniciales de Age of Voyage'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--no-input',
+            action='store_true',
+            help='No solicitar confirmación antes de poblar',
+        )
+
     def handle(self, *args, **options):
+        if not options['no_input']:
+            confirm = input('¿Quieres poblar la base de datos con datos iniciales? (y/N): ')
+            if confirm.lower() != 'y':
+                self.stdout.write('Operación cancelada.')
+                return
+        
         self.stdout.write('🚢 Iniciando población de Age of Voyage...')
+        
+        # Verificar si ya hay datos
+        if Player.objects.exists():
+            self.stdout.write('⚠️ Ya existen datos en la base de datos. Saltando población...')
+            return
         
         # Crear tipos de barcos
         self.create_ship_types()

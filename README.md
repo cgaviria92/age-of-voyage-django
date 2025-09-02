@@ -41,49 +41,39 @@ Age of Voyage es un juego web multijugador ambientado en la Edad de Oro de la Pi
 - Docker y Docker Compose (recomendado)
 - PostgreSQL (opcional, incluido en Docker)
 
-### 🐳 Instalación con Docker (Recomendada)
+### 🐳 Instalación con Docker (Recomendada) - **TOTALMENTE AUTOMÁTICA**
 
 ```bash
 # Clonar el repositorio
 git clone https://github.com/cgaviria92/age-of-voyage-django.git
 cd age-of-voyage-django
 
-# Levantar los servicios
-docker-compose up -d
+# ¡Un solo comando lo hace todo!
+# En Windows:
+start.bat
 
-# Ejecutar migraciones
-docker-compose exec web python manage.py migrate
-
-# Poblar la base de datos con datos iniciales
-docker-compose exec web python manage.py populate_game
-
-# Crear superusuario (opcional)
-docker-compose exec web python manage.py createsuperuser
+# En Linux/Mac:
+chmod +x start.sh
+./start.sh
 ```
 
-🎉 **¡El juego estará disponible en http://localhost:8000!**
+**🎉 ¡Eso es todo! Las migraciones, datos iniciales y configuración se crean automáticamente.**
 
-### 🐍 Instalación Manual
+### 🐍 Instalación Manual - **TAMBIÉN AUTOMÁTICA**
 
 ```bash
 # Clonar el repositorio
 git clone https://github.com/cgaviria92/age-of-voyage-django.git
 cd age-of-voyage-django
 
-# Crear entorno virtual
-python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+# Script de configuración automática
+python setup.py
 
-# Instalar dependencias
+# O manualmente:
 pip install -r requirements.txt
-
-# Configurar base de datos
+python manage.py makemigrations
 python manage.py migrate
-
-# Poblar datos iniciales
-python manage.py populate_game
-
-# Ejecutar servidor de desarrollo
+python manage.py populate_game --no-input
 python manage.py runserver
 ```
 
@@ -177,24 +167,47 @@ age-of-voyage-django/
 
 ## 🚀 Comandos Útiles
 
+### 🐳 Con Docker (Totalmente Automático)
 ```bash
-# Ejecutar migraciones
-python manage.py migrate
+# Iniciar todo automáticamente
+start.bat          # Windows
+./start.sh          # Linux/Mac
 
-# Poblar datos iniciales del juego
-python manage.py populate_game
+# Ver logs en tiempo real
+docker-compose logs -f
 
-# Crear superusuario
-python manage.py createsuperuser
+# Reiniciar servicios
+docker-compose restart
 
-# Ejecutar servidor de desarrollo
-python manage.py runserver
+# Detener servicios
+docker-compose down
 
-# Con Docker
-docker-compose up -d
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py populate_game
+# Limpiar todo y empezar de cero
+docker-compose down --volumes
 ```
+
+### 🐍 Desarrollo Local (También Automático)
+```bash
+# Configuración automática completa
+python setup.py
+
+# Comandos manuales si los necesitas
+python manage.py makemigrations  # Crear migraciones
+python manage.py migrate         # Aplicar migraciones
+python manage.py populate_game   # Poblar datos iniciales
+python manage.py runserver       # Servidor de desarrollo
+python manage.py createsuperuser # Crear usuario admin adicional
+```
+
+### ⚡ Características de Configuración Automática
+
+- ✅ **Migraciones Automáticas**: Se crean y aplican al iniciar
+- ✅ **Datos Iniciales**: 120+ regiones, 6 barcos, 29 recursos poblados automáticamente
+- ✅ **Usuario Admin**: Creado automáticamente (admin/admin123)
+- ✅ **Healthchecks**: Los servicios esperan a que la BD esté lista
+- ✅ **Detección Inteligente**: No duplica datos si ya existen
+- ✅ **Archivos Estáticos**: Recopilados automáticamente
+- ✅ **Zero Configuration**: Funciona inmediatamente después del primer comando
 
 ---
 

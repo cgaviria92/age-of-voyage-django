@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚢 Iniciando Age of Voyage..."
+echo "🚢 Iniciando Age of Voyage con configuración automática..."
 
 # Verificar si Docker está instalado
 if ! command -v docker &> /dev/null; then
@@ -16,26 +16,31 @@ fi
 
 echo "✅ Docker encontrado"
 
+# Limpiar contenedores anteriores si existen
+echo "🧹 Limpiando configuración anterior..."
+docker-compose down --volumes --remove-orphans >/dev/null 2>&1
+
 # Construir y levantar servicios
 echo "🔨 Construyendo servicios..."
-docker-compose build
+docker-compose build --no-cache
 
-echo "🚀 Levantando servicios..."
+echo "🚀 Levantando servicios con configuración automática..."
+echo "⚡ Las migraciones y datos iniciales se configurarán automáticamente..."
 docker-compose up -d
 
-echo "⏳ Esperando que la base de datos esté lista..."
-sleep 10
+echo "⏳ Esperando que los servicios estén listos..."
+sleep 30
 
-echo "📊 Ejecutando migraciones..."
-docker-compose exec web python manage.py migrate
-
-echo "🎮 Poblando datos iniciales del juego..."
-docker-compose exec web python manage.py populate_game
-
-echo "🎉 ¡Age of Voyage está listo!"
+echo ""
+echo "🎉 ¡Age of Voyage está listo con configuración automática!"
 echo "🌐 Accede al juego en: http://localhost:8000"
 echo "👑 Panel de administración: http://localhost:8000/admin"
 echo "🔑 Usuario admin: admin, Contraseña: admin123"
 echo ""
-echo "Para detener el juego: docker-compose down"
-echo "Para ver logs: docker-compose logs -f"
+echo "📋 Comandos útiles:"
+echo "   Ver logs:           docker-compose logs -f"
+echo "   Detener juego:      docker-compose down"
+echo "   Reiniciar:          docker-compose restart"
+echo "   Limpiar todo:       docker-compose down --volumes"
+echo ""
+echo "⚠️  Si hay problemas, verifica los logs con: docker-compose logs -f web"
