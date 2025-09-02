@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Age of Voyage{% endblock %}</title>
+    
+    <!-- Bootstrap 5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6.5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --ocean-blue: #1e3a8a;
+            --deep-blue: #1e40af;
+            --gold: #f59e0b;
+            --navy: #1f2937;
+            --sea-foam: #10b981;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--ocean-blue) 0%, var(--deep-blue) 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .navbar {
+            background: rgba(30, 58, 138, 0.95) !important;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--navy);
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background: #d97706;
+            border-color: #d97706;
+            color: var(--navy);
+        }
+        
+        .text-gold {
+            color: var(--gold) !important;
+        }
+        
+        .text-sea-foam {
+            color: var(--sea-foam) !important;
+        }
+        
+        .hero-section {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400"><path d="M0,300 C200,200 400,350 600,250 C800,150 900,300 1000,200 L1000,400 L0,400 Z" fill="rgba(16,185,129,0.3)"/></svg>') bottom center / cover no-repeat;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="fas fa-anchor text-gold me-2"></i>Age of Voyage
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/admin/">Admin Panel</a></li>
+                            <li><a class="dropdown-item" href="/accounts/logout/">Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accounts/login/">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accounts/signup/">Sign Up</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-dark">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ship text-gold me-2"></i>Age of Voyage</h5>
+                    <p class="mb-0">Epic naval exploration and trading game</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-0">Built with Django 5.1 & Bootstrap 5.3</p>
+                    <small class="text-muted">© 2024 Age of Voyage. Set sail for adventure!</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

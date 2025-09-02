@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Age of Voyage{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row min-vh-75 align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">
+                    <i class="fas fa-anchor text-gold me-3"></i>
+                    Age of Voyage
+                </h1>
+                <p class="lead mb-4">
+                    Embark on an epic naval adventure! Navigate treacherous waters, 
+                    build your fleet, engage in strategic combat, and become the most 
+                    legendary captain of the seven seas.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-compass me-2"></i>Enter Game
+                        </a>
+                    {% else %}
+                        <a href="/accounts/signup/" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Start Your Journey
+                        </a>
+                        <a href="/accounts/login/" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <i class="fas fa-ship display-1 text-gold mb-4"></i>
+                    <div class="row g-3 mt-3">
+                        <div class="col-4">
+                            <div class="card text-center p-3">
+                                <i class="fas fa-globe-americas text-sea-foam fs-1 mb-2"></i>
+                                <h6>120+ Regions</h6>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card text-center p-3">
+                                <i class="fas fa-coins text-gold fs-1 mb-2"></i>
+                                <h6>Dynamic Trading</h6>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card text-center p-3">
+                                <i class="fas fa-skull-crossbones text-danger fs-1 mb-2"></i>
+                                <h6>Epic Battles</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold text-gold">Game Features</h2>
+                <p class="lead">Experience the golden age of piracy and naval exploration</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Ship Management -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fas fa-dharmachakra text-gold fs-1 mb-3"></i>
+                    <h5>Fleet Management</h5>
+                    <p>Build and customize your fleet with 6 unique ship types. From nimble Balandras to mighty Navíos de Línea.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>6 Ship Classes</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Ship Upgrades</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Crew Management</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Exploration -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fas fa-map text-gold fs-1 mb-3"></i>
+                    <h5>World Exploration</h5>
+                    <p>Discover over 120 regions across the Caribbean, Atlantic, Mediterranean, Pacific, and Arctic waters.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>120+ Regions</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Hidden Treasures</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Dynamic Weather</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Trading -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fas fa-handshake text-gold fs-1 mb-3"></i>
+                    <h5>Dynamic Trading</h5>
+                    <p>Master the art of commerce with 50+ commodities, fluctuating prices, and lucrative trade contracts.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>50+ Commodities</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Market Dynamics</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Trade Contracts</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Combat -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fas fa-sword text-gold fs-1 mb-3"></i>
+                    <h5>Naval Combat</h5>
+                    <p>Engage in strategic turn-based battles with multiple ammunition types and tactical maneuvers.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Turn-based Strategy</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>4 Ammo Types</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Smart AI</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Progression -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fas fa-chart-line text-gold fs-1 mb-3"></i>
+                    <h5>Character Progress</h5>
+                    <p>Develop your captain through 100 levels with 5 specializations and faction relationships.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Level 1-100</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>5 Specializations</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Faction System</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Missions -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-4 text-center">
+                    <i class="fas fa-scroll text-gold fs-1 mb-3"></i>
+                    <h5>Epic Missions</h5>
+                    <p>Complete story missions, daily quests, and special contracts to earn rewards and reputation.</p>
+                    <ul class="list-unstyled text-start">
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Story Campaign</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Daily Quests</li>
+                        <li><i class="fas fa-check text-sea-foam me-2"></i>Special Contracts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-dark">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="display-6 fw-bold text-gold mb-4">Ready to Set Sail?</h3>
+                <p class="lead mb-4">
+                    Join thousands of captains in the most immersive naval adventure game. 
+                    Build your legend on the high seas!
+                </p>
+                {% if not user.is_authenticated %}
+                <a href="/accounts/signup/" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </a>
+                {% endif %}
+                <a href="/admin/" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-cog me-2"></i>Admin Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

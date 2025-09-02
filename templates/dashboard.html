@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}Captain's Dashboard - Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="text-gold mb-2">
+                                <i class="fas fa-compass me-2"></i>Captain's Dashboard
+                            </h1>
+                            <p class="mb-0">Welcome back, <strong>{{ user.username }}</strong>! Ready for your next adventure?</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-map me-1"></i>World Map
+                                </button>
+                                <button class="btn btn-outline-light btn-sm">
+                                    <i class="fas fa-cog me-1"></i>Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-tie text-gold fs-1 mb-2"></i>
+                    <h6>Captain Level</h6>
+                    <h4 class="text-gold">--</h4>
+                    <small>Experience: -- / --</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-coins text-gold fs-1 mb-2"></i>
+                    <h6>Gold</h6>
+                    <h4 class="text-gold">--</h4>
+                    <small>Total wealth</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-ship text-sea-foam fs-1 mb-2"></i>
+                    <h6>Fleet Size</h6>
+                    <h4 class="text-sea-foam">--</h4>
+                    <small>Ships owned</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-map-marked-alt text-info fs-1 mb-2"></i>
+                    <h6>Regions</h6>
+                    <h4 class="text-info">--</h4>
+                    <small>Discovered</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Player Profile -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-user-circle me-2"></i>Captain Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fs-1 text-gold mb-2"></i>
+                        <h6>Create your captain profile to start playing!</h6>
+                    </div>
+                    <button class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-plus me-1"></i>Create Captain
+                    </button>
+                    <hr>
+                    <h6>Specializations</h6>
+                    <div class="row g-2 text-center">
+                        <div class="col-6">
+                            <small><i class="fas fa-compass me-1"></i>Navigation</small>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small><i class="fas fa-sword me-1"></i>Combat</small>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-danger" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small><i class="fas fa-handshake me-1"></i>Trade</small>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small><i class="fas fa-eye me-1"></i>Exploration</small>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-info" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fleet Management -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-anchor me-2"></i>Your Fleet</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-ship fs-1 text-muted mb-3"></i>
+                        <p>No ships in your fleet yet.</p>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Buy Your First Ship
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Location & Actions -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Current Location</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-question-circle fs-1 text-muted mb-2"></i>
+                        <h6>Unknown Waters</h6>
+                        <small class="text-muted">Start your journey to explore the world</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-eye me-1"></i>Explore Area
+                        </button>
+                        <button class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-route me-1"></i>Set Course
+                        </button>
+                        <button class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-store me-1"></i>Visit Market
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity & Missions -->
+    <div class="row g-4 mt-2">
+        <!-- Active Missions -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-scroll me-2"></i>Active Missions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-list fs-1 text-muted mb-3"></i>
+                        <p>No active missions. Visit quest givers to start your adventure!</p>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Find Missions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- World Map Preview -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-globe me-2"></i>World Map</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-map fs-1 text-sea-foam mb-3"></i>
+                        <p>Explore 120+ regions across 6 major world areas:</p>
+                        <div class="row g-2 text-start">
+                            <div class="col-6">
+                                <small><i class="fas fa-palm-tree me-1 text-success"></i>Caribbean (30)</small>
+                            </div>
+                            <div class="col-6">
+                                <small><i class="fas fa-water me-1 text-primary"></i>Atlantic (25)</small>
+                            </div>
+                            <div class="col-6">
+                                <small><i class="fas fa-landmark me-1 text-warning"></i>Mediterranean (20)</small>
+                            </div>
+                            <div class="col-6">
+                                <small><i class="fas fa-sun me-1 text-orange"></i>Pacific (25)</small>
+                            </div>
+                            <div class="col-6">
+                                <small><i class="fas fa-snowflake me-1 text-info"></i>Arctic (15)</small>
+                            </div>
+                            <div class="col-6">
+                                <small><i class="fas fa-skull-crossbones me-1 text-danger"></i>Hideouts (5)</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-3">
+                            <i class="fas fa-map me-1"></i>Open Full Map
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-primary w-100">
+                                <i class="fas fa-user-plus d-block mb-1"></i>
+                                <small>Create Captain</small>
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-success w-100">
+                                <i class="fas fa-ship d-block mb-1"></i>
+                                <small>Buy Ship</small>
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-info w-100">
+                                <i class="fas fa-compass d-block mb-1"></i>
+                                <small>Explore</small>
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-warning w-100">
+                                <i class="fas fa-coins d-block mb-1"></i>
+                                <small>Trade</small>
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-danger w-100">
+                                <i class="fas fa-sword d-block mb-1"></i>
+                                <small>Battle</small>
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-scroll d-block mb-1"></i>
+                                <small>Missions</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-sm {
+    height: 4px;
+}
+.text-orange {
+    color: #f97316 !important;
+}
+</style>
+{% endblock %}
