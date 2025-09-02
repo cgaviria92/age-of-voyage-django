@@ -1,0 +1,30 @@
+# Core Django
+Django==5.1.1
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+
+# Database & Performance
+psycopg2-binary==2.9.9
+django-redis==5.4.0
+redis==5.0.8
+
+# Authentication & Security
+django-allauth==0.57.0
+djangorestframework-simplejwt==5.3.0
+django-guardian==2.4.0
+
+# Async & Real-time
+channels==4.1.0
+channels-redis==4.2.0
+celery==5.3.4
+
+# API Documentation
+drf-spectacular==0.27.2
+django-filter==23.3
+
+# Media & Files
+Pillow==10.4.0
+whitenoise==6.6.0
+
+# Utils
+python-decouple==3.8
