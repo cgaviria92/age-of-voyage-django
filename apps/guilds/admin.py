@@ -1,5 +1,7 @@
-from django.contrib import admin
-from .models import Guild, GuildMembership
+# from django.contrib import admin
+# from .models import Guild, GuildMembership
+
+# Temporarily disabled to fix admin errors
 
 
 @admin.register(Guild)

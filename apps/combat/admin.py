@@ -1,5 +1,7 @@
-from django.contrib import admin
-from .models import Battle, CombatTurn, PirateFleet, CombatEvent
+# from django.contrib import admin
+# from .models import Battle, CombatTurn, PirateFleet
+
+# Temporarily disabled to fix admin errors, CombatEvent
 
 
 @admin.register(Battle)
