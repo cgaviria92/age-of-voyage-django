@@ -5,7 +5,20 @@ echo "🚢 Iniciando Age of Voyage con configuración automática..."
 # Función para esperar a que la base de datos esté lista
 wait_for_db() {
     echo "⏳ Esperando conexión a la base de datos..."
-    while ! python manage.py dbshell --command="SELECT 1;" >/dev/null 2>&1; do
+    while ! python -c "
+import os, psycopg2
+try:
+    psycopg2.connect(
+        host='db',
+        port=5432,
+        user=os.environ.get('POSTGRES_USER', 'ageofvoyage'), 
+        password=os.environ.get('POSTGRES_PASSWORD', 'password123'),
+        database=os.environ.get('POSTGRES_DB', 'ageofvoyage_db')
+    ).close()
+    print('Database ready')
+except:
+    exit(1)
+" >/dev/null 2>&1; do
         echo "🔄 Base de datos no disponible, esperando..."
         sleep 2
     done
