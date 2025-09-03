@@ -1,27 +1,32 @@
 from django.contrib import admin
-from .models import Battle, Fleet, CombatReport
+from .models import Battle, CombatTurn, PirateFleet, CombatEvent
 
 
 @admin.register(Battle)
 class BattleAdmin(admin.ModelAdmin):
-    list_display = ['attacker', 'defender', 'status', 'created_at']
-    list_filter = ['status', 'created_at']
-    search_fields = ['attacker__user__username', 'defender__user__username']
-    readonly_fields = ['created_at']
+    list_display = ['player', 'enemy_fleet', 'status', 'result', 'created_at']
+    list_filter = ['status', 'result', 'created_at']
+    search_fields = ['player__user__username']
+    readonly_fields = ['created_at', 'ended_at']
 
 
-@admin.register(Fleet)
-class FleetAdmin(admin.ModelAdmin):
-    list_display = ['player', 'name', 'is_active', 'created_at']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['player__user__username', 'name']
-    readonly_fields = ['created_at']
-    filter_horizontal = ['ships']
+@admin.register(CombatTurn)
+class CombatTurnAdmin(admin.ModelAdmin):
+    list_display = ['battle', 'turn_number', 'attacker_ship', 'defender_ship', 'damage_dealt']
+    list_filter = ['turn_number']
+    search_fields = ['battle__player__user__username']
 
 
-@admin.register(CombatReport)
-class CombatReportAdmin(admin.ModelAdmin):
-    list_display = ['attacker', 'defender', 'winner', 'loot_gold', 'created_at']
-    list_filter = ['created_at']
-    search_fields = ['attacker__user__username', 'defender__user__username', 'winner__user__username']
+@admin.register(PirateFleet)
+class PirateFleetAdmin(admin.ModelAdmin):
+    list_display = ['name', 'region', 'threat_level', 'is_active']
+    list_filter = ['threat_level', 'is_active']
+    search_fields = ['name', 'region__name']
+
+
+@admin.register(CombatEvent)
+class CombatEventAdmin(admin.ModelAdmin):
+    list_display = ['player', 'region', 'event_type', 'created_at']
+    list_filter = ['event_type', 'created_at']
+    search_fields = ['player__user__username', 'region__name']
     readonly_fields = ['created_at']
