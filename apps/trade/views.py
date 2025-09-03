@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.c    # GET request
+    player = get_object_or_404(Player, user=request.user)
+    ships = Ship.objects.filter(player=player, status='docked')
+    markets = Market.objects.filter(is_active=True)ib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import TradeRoute, TradePost, TradeTransaction
+from .models import TradeRoute, Market, TradeMission, Resource, TradeMissionCargo, PriceHistory
 from apps.players.models import Player
 from apps.ships.models import Ship
 
@@ -12,25 +15,25 @@ def trade_dashboard(request):
     """Panel principal de comercio."""
     player = get_object_or_404(Player, user=request.user)
     active_routes = TradeRoute.objects.filter(player=player, is_active=True)
-    recent_transactions = TradeTransaction.objects.filter(player=player).order_by('-created_at')[:10]
+    recent_missions = TradeMission.objects.filter(player=player).order_by('-created_at')[:10]
     
     context = {
         'player': player,
         'active_routes': active_routes,
-        'recent_transactions': recent_transactions,
+        'recent_missions': recent_missions,
     }
     return render(request, 'trade/dashboard.html', context)
 
 
 @login_required
 def trade_posts(request):
-    """Lista de puestos comerciales."""
+    """Lista de mercados comerciales."""
     player = get_object_or_404(Player, user=request.user)
-    trade_posts = TradePost.objects.filter(is_active=True)
+    markets = Market.objects.filter(is_active=True)
     
     context = {
         'player': player,
-        'trade_posts': trade_posts,
+        'markets': markets,
     }
     return render(request, 'trade/trade_posts.html', context)
 
@@ -48,8 +51,8 @@ def create_trade_route(request):
         
         try:
             ship = Ship.objects.get(id=ship_id, player=player)
-            origin = TradePost.objects.get(id=origin_id)
-            destination = TradePost.objects.get(id=destination_id)
+            origin = Market.objects.get(id=origin_id)
+            destination = Market.objects.get(id=destination_id)
             
             if ship.status != 'docked':
                 messages.error(request, 'El barco no está disponible.')
@@ -59,8 +62,8 @@ def create_trade_route(request):
             trade_route = TradeRoute.objects.create(
                 player=player,
                 ship=ship,
-                origin=origin,
-                destination=destination,
+                origin_region=origin.region,
+                destination_region=destination.region,
                 cargo_type=cargo_type,
                 cargo_quantity=int(cargo_quantity),
                 is_active=True
@@ -72,7 +75,7 @@ def create_trade_route(request):
             
             messages.success(request, '¡Ruta comercial creada exitosamente!')
             
-        except (Ship.DoesNotExist, TradePost.DoesNotExist, ValueError):
+        except (Ship.DoesNotExist, Market.DoesNotExist, ValueError):
             messages.error(request, 'Error al crear la ruta comercial.')
         
         return redirect('trade:dashboard')
@@ -80,7 +83,7 @@ def create_trade_route(request):
     # GET request
     player = get_object_or_404(Player, user=request.user)
     available_ships = Ship.objects.filter(player=player, status='docked')
-    trade_posts = TradePost.objects.filter(is_active=True)
+    markets = Market.objects.filter(is_active=True)
     
     cargo_types = [
         'Especias', 'Oro', 'Seda', 'Madera', 'Frutas',
@@ -90,7 +93,7 @@ def create_trade_route(request):
     context = {
         'player': player,
         'available_ships': available_ships,
-        'trade_posts': trade_posts,
+        'markets': markets,
         'cargo_types': cargo_types,
     }
     return render(request, 'trade/create_route.html', context)
@@ -123,14 +126,9 @@ def complete_trade(request, route_id):
         # Calcular ganancias
         profit = trade_route.cargo_quantity * 10  # Simulado
         
-        # Crear transacción
-        TradeTransaction.objects.create(
-            player=player,
-            trade_route=trade_route,
-            profit=profit,
-            cargo_type=trade_route.cargo_type,
-            quantity=trade_route.cargo_quantity
-        )
+        # Actualizar oro del jugador
+        player.gold += profit
+        player.save()
         
         # Completar ruta
         trade_route.is_active = False
@@ -153,12 +151,12 @@ def complete_trade(request, route_id):
 
 @login_required
 def trade_history(request):
-    """Historial de transacciones comerciales."""
+    """Historial de misiones comerciales."""
     player = get_object_or_404(Player, user=request.user)
-    transactions = TradeTransaction.objects.filter(player=player).order_by('-created_at')
+    missions = TradeMission.objects.filter(player=player).order_by('-started_at')
     
     context = {
         'player': player,
-        'transactions': transactions,
+        'missions': missions,
     }
     return render(request, 'trade/history.html', context)
