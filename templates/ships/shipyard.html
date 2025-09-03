@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Astillero - Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>⚒️ Astillero Naval</h2>
+        <p class="lead">Construye y mejora tu flota para dominar los mares</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card p-3 mb-4">
+            <h5>💰 Recursos</h5>
+            <p><strong>Oro disponible:</strong> {{ player.gold|floatformat:0 }}</p>
+            <p><strong>Barcos actuales:</strong> {{ player_ships_count }}/{{ max_ships }}</p>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <h4>🚢 Tipos de Barcos Disponibles</h4>
+        <div class="row">
+            {% for ship_type in ship_types %}
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>{{ ship_type.name }}</h5>
+                    <p class="text-muted">{{ ship_type.description }}</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small><strong>⚔️ Ataque:</strong> {{ ship_type.attack_power }}</small><br>
+                            <small><strong>🛡️ Defensa:</strong> {{ ship_type.defense_power }}</small><br>
+                            <small><strong>❤️ Salud:</strong> {{ ship_type.max_health }}</small>
+                        </div>
+                        <div class="col-6">
+                            <small><strong>💨 Velocidad:</strong> {{ ship_type.speed }}</small><br>
+                            <small><strong>📦 Carga:</strong> {{ ship_type.cargo_capacity }}</small><br>
+                            <small><strong>👥 Tripulación:</strong> {{ ship_type.crew_capacity }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>💰 Precio: {{ ship_type.cost|floatformat:0 }} oro</h6>
+                    </div>
+                    
+                    {% if player.gold >= ship_type.cost and player_ships_count < max_ships %}
+                        <button class="btn btn-primary w-100" onclick="buildShip({{ ship_type.id }}, '{{ ship_type.name }}')">
+                            🔨 Construir Barco
+                        </button>
+                    {% elif player.gold < ship_type.cost %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            💸 Oro insuficiente
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            🚫 Límite de barcos alcanzado
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nombrar el barco -->
+<div class="modal fade" id="buildShipModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">🚢 Construir Barco</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'ships:build_ship' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="ship_type_id" name="ship_type_id">
+                    <div class="mb-3">
+                        <label for="ship_name" class="form-label">Nombre del barco:</label>
+                        <input type="text" class="form-control" id="ship_name" name="ship_name" required>
+                        <div class="form-text">Elige un nombre épico para tu nuevo barco</div>
+                    </div>
+                    <p>Tipo de barco: <strong id="selected_ship_type"></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">🔨 Construir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function buildShip(shipTypeId, shipTypeName) {
+    document.getElementById('ship_type_id').value = shipTypeId;
+    document.getElementById('selected_ship_type').textContent = shipTypeName;
+    new bootstrap.Modal(document.getElementById('buildShipModal')).show();
+}
+</script>
+{% endblock %}

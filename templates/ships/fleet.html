@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Flota - Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>🚢 Mi Flota Naval</h2>
+            <a href="{% url 'ships:shipyard' %}" class="btn btn-primary">⚒️ Astillero</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card p-3 mb-4">
+            <h5>💰 Recursos</h5>
+            <p><strong>Oro:</strong> {{ player.gold|floatformat:0 }}</p>
+            <p><strong>Barcos:</strong> {{ ships.count }}/{{ max_ships }}</p>
+            <p><strong>Tripulación Total:</strong> {{ total_crew }}</p>
+        </div>
+        
+        <div class="card p-3">
+            <h6>📊 Estadísticas de Flota</h6>
+            <small><strong>Poder de Combate:</strong> {{ total_combat_power }}</small><br>
+            <small><strong>Capacidad de Carga:</strong> {{ total_cargo_capacity }}</small><br>
+            <small><strong>Velocidad Promedio:</strong> {{ average_speed }}</small>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        {% if ships %}
+            <div class="row">
+                {% for ship in ships %}
+                <div class="col-md-6 mb-4">
+                    <div class="card p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5>{{ ship.name }}</h5>
+                            <span class="badge bg-{% if ship.status == 'idle' %}success{% elif ship.status == 'sailing' %}warning{% else %}danger{% endif %}">
+                                {{ ship.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <p class="text-muted">{{ ship.ship_type.name }}</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small><strong>⚔️ Ataque:</strong> {{ ship.ship_type.attack_power }}</small><br>
+                                <small><strong>🛡️ Defensa:</strong> {{ ship.ship_type.defense_power }}</small>
+                            </div>
+                            <div class="col-6">
+                                <small><strong>💨 Velocidad:</strong> {{ ship.ship_type.speed }}</small><br>
+                                <small><strong>📦 Carga:</strong> {{ ship.ship_type.cargo_capacity }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="progress mb-1">
+                                <div class="progress-bar bg-success" style="width: {{ ship.health_percentage }}%"></div>
+                            </div>
+                            <small>❤️ Salud: {{ ship.health }}/{{ ship.ship_type.max_health }}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small><strong>👥 Tripulación:</strong> {{ ship.crew_count }}/{{ ship.ship_type.crew_capacity }}</small>
+                        </div>
+                        
+                        {% if ship.status == 'idle' %}
+                        <div class="btn-group w-100">
+                            <a href="{% url 'ships:ship_detail' ship.id %}" class="btn btn-outline-light btn-sm">Ver Detalles</a>
+                            <a href="{% url 'exploration:start_exploration' ship.id %}" class="btn btn-warning btn-sm">🗺️ Explorar</a>
+                            <a href="{% url 'trade:start_trade' ship.id %}" class="btn btn-success btn-sm">💰 Comerciar</a>
+                        </div>
+                        {% elif ship.status == 'sailing' %}
+                        <div class="text-center">
+                            <p class="text-warning">🌊 Navegando...</p>
+                            <small>Regresa en: {{ ship.return_time|timeuntil }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card p-5 text-center">
+                <h4>🏴‍☠️ No tienes barcos</h4>
+                <p>¡Construye tu primer barco para comenzar tu aventura en los mares!</p>
+                <a href="{% url 'ships:shipyard' %}" class="btn btn-primary btn-lg">⚒️ Ir al Astillero</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

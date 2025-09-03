@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Misiones de Exploración{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-blue-800 mb-6">
+        <i class="fas fa-compass mr-2"></i>
+        Misiones de Exploración
+    </h1>
+
+    <!-- Misiones Activas -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-ship mr-2"></i>
+            Misiones Activas
+        </h2>
+
+        {% if active_missions %}
+            <div class="grid gap-4">
+                {% for mission in active_missions %}
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    {{ mission.ship.name }} - {{ mission.target_region.name }}
+                                </h3>
+                                <p class="text-gray-600 mb-2">
+                                    Tipo: {{ mission.get_exploration_type_display }}
+                                </p>
+                                <div class="text-sm text-gray-500">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    Completará: {{ mission.estimated_completion|date:"d/m/Y H:i" }}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-block px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">
+                                    En Progreso
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-gray-50 rounded-lg p-6 text-center">
+                <i class="fas fa-ship text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">No tienes misiones de exploración activas.</p>
+                <a href="{% url 'exploration:map' %}" class="inline-block mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                    Iniciar Nueva Exploración
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Misiones Completadas -->
+    <div>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-history mr-2"></i>
+            Misiones Recientes
+        </h2>
+
+        {% if completed_missions %}
+            <div class="grid gap-4">
+                {% for mission in completed_missions %}
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if mission.status == 'completed' %}border-green-500{% else %}border-red-500{% endif %}">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    {{ mission.ship.name }} - {{ mission.target_region.name }}
+                                </h3>
+                                <p class="text-gray-600 mb-2">
+                                    Tipo: {{ mission.get_exploration_type_display }}
+                                </p>
+                                <div class="text-sm text-gray-500">
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    Completada: {{ mission.completed_at|date:"d/m/Y H:i" }}
+                                </div>
+                                {% if mission.xp_gained %}
+                                    <div class="text-sm text-green-600 mt-1">
+                                        <i class="fas fa-star mr-1"></i>
+                                        +{{ mission.xp_gained }} XP
+                                    </div>
+                                {% endif %}
+                                {% if mission.gold_gained %}
+                                    <div class="text-sm text-yellow-600">
+                                        <i class="fas fa-coins mr-1"></i>
+                                        +{{ mission.gold_gained }} oro
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="text-right">
+                                {% if mission.status == 'completed' %}
+                                    <span class="inline-block px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
+                                        Exitosa
+                                    </span>
+                                {% else %}
+                                    <span class="inline-block px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
+                                        Fallida
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-gray-50 rounded-lg p-6 text-center">
+                <i class="fas fa-history text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">No tienes misiones completadas aún.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Botón para volver al mapa -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'exploration:map' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-map mr-2"></i>
+            Volver al Mapa
+        </a>
+    </div>
+</div>
+{% endblock %}

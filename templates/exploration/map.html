@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Exploración - Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>🗺️ Exploración de Regiones</h2>
+        <p class="lead">Descubre nuevas tierras, encuentra tesoros y enfrenta peligros desconocidos</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card p-3 mb-4">
+            <h5>🎒 Preparación</h5>
+            <p><strong>Oro:</strong> {{ player.gold|floatformat:0 }}</p>
+            <p><strong>Nivel:</strong> {{ player.level }}</p>
+            <p><strong>Regiones Descubiertas:</strong> {{ player.regions_discovered }}</p>
+        </div>
+        
+        {% if selected_ship %}
+        <div class="card p-3 mb-4">
+            <h5>🚢 Barco Seleccionado</h5>
+            <p><strong>{{ selected_ship.name }}</strong></p>
+            <small>{{ selected_ship.ship_type.name }}</small><br>
+            <small>❤️ Salud: {{ selected_ship.health }}/{{ selected_ship.ship_type.max_health }}</small><br>
+            <small>👥 Tripulación: {{ selected_ship.crew_count }}/{{ selected_ship.ship_type.crew_capacity }}</small>
+            <a href="{% url 'exploration:map' %}" class="btn btn-sm btn-outline-light mt-2">Cambiar Barco</a>
+        </div>
+        {% endif %}
+        
+        <div class="card p-3">
+            <h6>📊 Estadísticas de Exploración</h6>
+            <small><strong>Misiones Exitosas:</strong> {{ exploration_stats.successful_missions }}</small><br>
+            <small><strong>Tesoros Encontrados:</strong> {{ exploration_stats.treasures_found }}</small><br>
+            <small><strong>Batallas Ganadas:</strong> {{ exploration_stats.battles_won }}</small>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        {% if not selected_ship %}
+        <div class="card p-4 mb-4">
+            <h4>🚢 Selecciona un Barco</h4>
+            <p>Necesitas un barco disponible para comenzar la exploración.</p>
+            <div class="row">
+                {% for ship in available_ships %}
+                <div class="col-md-6 mb-3">
+                    <div class="card p-3">
+                        <h6>{{ ship.name }}</h6>
+                        <p class="text-muted mb-2">{{ ship.ship_type.name }}</p>
+                        <small>❤️ {{ ship.health }}/{{ ship.ship_type.max_health }} | 
+                               💨 Velocidad {{ ship.ship_type.speed }} | 
+                               👥 {{ ship.crew_count }}/{{ ship.ship_type.crew_capacity }}</small>
+                        <a href="{% url 'exploration:select_ship' ship.id %}" class="btn btn-primary btn-sm mt-2">Seleccionar</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-muted">No tienes barcos disponibles. <a href="{% url 'ships:shipyard' %}">Construye uno aquí</a>.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h4>🌍 Regiones Disponibles</h4>
+            </div>
+            
+            {% for region in regions %}
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100 {% if not region.is_discovered %}border-warning{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5>{{ region.name }}</h5>
+                        <span class="badge bg-{% if region.danger_level <= 2 %}success{% elif region.danger_level <= 4 %}warning{% else %}danger{% endif %}">
+                            Peligro: {{ region.danger_level }}/5
+                        </span>
+                    </div>
+                    
+                    {% if not region.is_discovered %}
+                        <p class="text-warning">🗺️ Región inexplorada</p>
+                    {% endif %}
+                    
+                    <p class="text-muted">{{ region.description|truncatewords:15 }}</p>
+                    
+                    <div class="mb-3">
+                        <small><strong>Tipo:</strong> {{ region.get_region_type_display }}</small><br>
+                        <small><strong>Nivel Requerido:</strong> {{ region.required_level }}</small><br>
+                        {% if region.is_discovered %}
+                            <small><strong>Recursos:</strong> 
+                            {% for resource in region.resources.all|slice:":3" %}
+                                {{ resource.resource_type }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+                    
+                    {% if player.level >= region.required_level %}
+                        {% if selected_ship.health >= selected_ship.ship_type.max_health * 0.3 %}
+                            <button class="btn btn-warning w-100" onclick="startExploration({{ region.id }}, '{{ region.name }}')">
+                                🗺️ Explorar Región
+                            </button>
+                        {% else %}
+                            <button class="btn btn-secondary w-100" disabled>
+                                🔧 Barco necesita reparación
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            🔒 Nivel {{ region.required_level }} requerido
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal de exploración -->
+<div class="modal fade" id="explorationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">🗺️ Iniciar Exploración</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'exploration:start_exploration' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="region_id" name="region_id">
+                    <input type="hidden" name="ship_id" value="{{ selected_ship.id }}">
+                    
+                    <p>¿Estás seguro de que quieres explorar <strong id="region_name"></strong>?</p>
+                    
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Advertencia:</strong> La exploración puede tomar tiempo y tu barco podría sufrir daños o encontrar enemigos.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exploration_type" class="form-label">Tipo de Exploración:</label>
+                        <select class="form-select" name="exploration_type" required>
+                            <option value="quick">🏃 Rápida (30 min) - Menor riesgo, menores recompensas</option>
+                            <option value="normal">🚶 Normal (1 hora) - Riesgo moderado, recompensas moderadas</option>
+                            <option value="thorough">🕵️ Exhaustiva (2 horas) - Mayor riesgo, mayores recompensas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">🗺️ Comenzar Exploración</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function startExploration(regionId, regionName) {
+    document.getElementById('region_id').value = regionId;
+    document.getElementById('region_name').textContent = regionName;
+    new bootstrap.Modal(document.getElementById('explorationModal')).show();
+}
+</script>
+{% endblock %}

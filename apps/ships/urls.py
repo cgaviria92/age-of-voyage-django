@@ -5,12 +5,12 @@ app_name = 'ships'
 
 urlpatterns = [
     # Lista y detalle de barcos
-    path('', views.ship_list, name='ship_list'),
+    path('', views.ship_list, name='fleet'),
     path('<int:ship_id>/', views.ship_detail, name='ship_detail'),
     
     # Astillero
     path('shipyard/', views.shipyard, name='shipyard'),
-    path('purchase/<int:ship_type_id>/', views.purchase_ship, name='purchase_ship'),
+    path('build/', views.build_ship, name='build_ship'),
     
     # Mantenimiento y mejoras
     path('<int:ship_id>/repair/', views.repair_ship, name='repair_ship'),

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db import models
 from .models import Ship, ShipType, ShipUpgrade, CrewMember
 from apps.players.models import Player
 
@@ -12,11 +13,22 @@ def ship_list(request):
     player = get_object_or_404(Player, user=request.user)
     ships = Ship.objects.filter(owner=player).order_by('-created_at')
     
+    # Estadísticas de la flota
+    total_crew = sum(ship.crew_members.count() for ship in ships)
+    total_combat_power = sum(ship.ship_type.attack_power + ship.ship_type.defense_power for ship in ships)
+    total_cargo_capacity = sum(ship.ship_type.cargo_capacity for ship in ships)
+    average_speed = ships.aggregate(models.Avg('ship_type__speed'))['ship_type__speed__avg'] or 0
+    
     context = {
         'ships': ships,
         'player': player,
+        'max_ships': 10,  # Límite de barcos
+        'total_crew': total_crew,
+        'total_combat_power': total_combat_power,
+        'total_cargo_capacity': total_cargo_capacity,
+        'average_speed': round(average_speed, 1),
     }
-    return render(request, 'ships/ship_list.html', context)
+    return render(request, 'ships/fleet.html', context)
 
 
 @login_required
@@ -42,14 +54,14 @@ def shipyard(request):
     player = get_object_or_404(Player, user=request.user)
     
     # Barcos disponibles según el nivel del jugador
-    available_ships = ShipType.objects.filter(required_level__lte=player.level)
+    ship_types = ShipType.objects.filter(required_level__lte=player.level)
     
     # Barcos que el jugador ya posee
-    player_ships = Ship.objects.filter(owner=player)
+    player_ships_count = Ship.objects.filter(owner=player).count()
     
     context = {
-        'available_ships': available_ships,
-        'player_ships': player_ships,
+        'ship_types': ship_types,
+        'player_ships_count': player_ships_count,
         'player': player,
         'max_ships': 10,  # Límite de barcos por jugador
     }
@@ -57,12 +69,19 @@ def shipyard(request):
 
 
 @login_required
-def purchase_ship(request, ship_type_id):
-    """Comprar un barco nuevo"""
+def build_ship(request):
+    """Construir un barco nuevo"""
     if request.method != 'POST':
         return redirect('ships:shipyard')
     
     player = get_object_or_404(Player, user=request.user)
+    ship_type_id = request.POST.get('ship_type_id')
+    ship_name = request.POST.get('ship_name')
+    
+    if not ship_type_id or not ship_name:
+        messages.error(request, 'Datos incompletos.')
+        return redirect('ships:shipyard')
+    
     ship_type = get_object_or_404(ShipType, id=ship_type_id)
     
     # Verificaciones
@@ -71,11 +90,33 @@ def purchase_ship(request, ship_type_id):
         return redirect('ships:shipyard')
     
     if player.level < ship_type.required_level:
-        messages.error(request, f'Necesitas nivel {ship_type.required_level} para comprar este barco.')
+        messages.error(request, f'Necesitas nivel {ship_type.required_level} para construir este barco.')
         return redirect('ships:shipyard')
     
-    if not player.can_afford(ship_type.purchase_cost):
-        messages.error(request, 'No tienes suficiente oro para comprar este barco.')
+    if player.gold < ship_type.cost:
+        messages.error(request, 'No tienes suficiente oro para construir este barco.')
+        return redirect('ships:shipyard')
+    
+    # Verificar que el nombre no esté en uso
+    if Ship.objects.filter(owner=player, name=ship_name).exists():
+        messages.error(request, 'Ya tienes un barco con ese nombre.')
+        return redirect('ships:shipyard')
+    
+    # Crear el barco
+    ship = Ship.objects.create(
+        owner=player,
+        name=ship_name,
+        ship_type=ship_type,
+        health=ship_type.max_health,
+        status='idle'
+    )
+    
+    # Descontar oro
+    player.gold -= ship_type.cost
+    player.save()
+    
+    messages.success(request, f'¡Barco "{ship_name}" construido exitosamente!')
+    return redirect('ships:fleet')
         return redirect('ships:shipyard')
     
     # Obtener nombre del barco
