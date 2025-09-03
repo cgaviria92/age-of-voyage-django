@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
-from .models import Mission, MissionProgress, MissionReward
+from .models import Mission, PlayerMission
 from apps.players.models import Player
 
 
@@ -17,17 +17,17 @@ def missions_dashboard(request):
         is_active=True,
         required_level__lte=player.level
     ).exclude(
-        id__in=MissionProgress.objects.filter(player=player).values_list('mission_id', flat=True)
+        id__in=PlayerMission.objects.filter(player=player).values_list('mission_id', flat=True)
     )
     
     # Misiones en progreso
-    active_missions = MissionProgress.objects.filter(
+    active_missions = PlayerMission.objects.filter(
         player=player,
         is_completed=False
     ).select_related('mission')
     
     # Misiones completadas recientemente
-    completed_missions = MissionProgress.objects.filter(
+    completed_missions = PlayerMission.objects.filter(
         player=player,
         is_completed=True
     ).select_related('mission').order_by('-completed_at')[:10]
@@ -49,12 +49,13 @@ def mission_detail(request, mission_id):
     
     # Verificar progreso actual
     try:
-        progress = MissionProgress.objects.get(player=player, mission=mission)
-    except MissionProgress.DoesNotExist:
+        progress = PlayerMission.objects.get(player=player, mission=mission)
+    except PlayerMission.DoesNotExist:
         progress = None
     
     # Obtener recompensas
-    rewards = MissionReward.objects.filter(mission=mission)
+    # rewards = MissionReward.objects.filter(mission=mission)
+    rewards = []  # Placeholder until MissionReward model is created
     
     context = {
         'player': player,
@@ -79,12 +80,12 @@ def start_mission(request, mission_id):
             return redirect('missions:mission_detail', mission_id=mission_id)
         
         # Verificar si ya está en progreso
-        if MissionProgress.objects.filter(player=player, mission=mission).exists():
+        if PlayerMission.objects.filter(player=player, mission=mission).exists():
             messages.error(request, 'Ya tienes esta misión en progreso o completada.')
             return redirect('missions:mission_detail', mission_id=mission_id)
         
         # Iniciar misión
-        progress = MissionProgress.objects.create(
+        progress = PlayerMission.objects.create(
             player=player,
             mission=mission,
             current_progress=0,
@@ -101,7 +102,7 @@ def start_mission(request, mission_id):
 def mission_progress(request, progress_id):
     """Ver progreso de una misión."""
     player = get_object_or_404(Player, user=request.user)
-    progress = get_object_or_404(MissionProgress, id=progress_id, player=player)
+    progress = get_object_or_404(PlayerMission, id=progress_id, player=player)
     
     # Calcular porcentaje de progreso
     if progress.mission.target_amount > 0:
@@ -122,7 +123,7 @@ def update_mission_progress(request, progress_id):
     """Actualizar progreso de misión (simulado)."""
     if request.method == 'POST':
         player = get_object_or_404(Player, user=request.user)
-        progress = get_object_or_404(MissionProgress, id=progress_id, player=player)
+        progress = get_object_or_404(PlayerMission, id=progress_id, player=player)
         
         if progress.is_completed:
             messages.error(request, 'Esta misión ya fue completada.')
@@ -141,7 +142,8 @@ def update_mission_progress(request, progress_id):
             progress.completed_at = timezone.now()
             
             # Otorgar recompensas
-            rewards = MissionReward.objects.filter(mission=progress.mission)
+            # rewards = MissionReward.objects.filter(mission=progress.mission)
+            rewards = []  # Placeholder until MissionReward model is created
             total_gold = 0
             total_experience = 0
             
@@ -170,7 +172,7 @@ def abandon_mission(request, progress_id):
     """Abandonar una misión."""
     if request.method == 'POST':
         player = get_object_or_404(Player, user=request.user)
-        progress = get_object_or_404(MissionProgress, id=progress_id, player=player)
+        progress = get_object_or_404(PlayerMission, id=progress_id, player=player)
         
         if progress.is_completed:
             messages.error(request, 'No puedes abandonar una misión completada.')
@@ -199,7 +201,7 @@ def daily_missions(request):
     
     # Verificar progreso de misiones diarias de hoy
     today = timezone.now().date()
-    daily_progress = MissionProgress.objects.filter(
+    daily_progress = PlayerMission.objects.filter(
         player=player,
         mission__mission_type='daily',
         started_at__date=today
@@ -238,7 +240,7 @@ def claim_reward(request, progress_id):
     """Reclamar recompensa de misión completada."""
     if request.method == 'POST':
         player = get_object_or_404(Player, user=request.user)
-        progress = get_object_or_404(MissionProgress, id=progress_id, player=player)
+        progress = get_object_or_404(PlayerMission, id=progress_id, player=player)
         
         if not progress.is_completed:
             messages.error(request, 'Esta misión no está completada.')

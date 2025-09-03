@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Guild, GuildMembershipship
+from .models import Guild, GuildMembership
 from apps.players.models import Player
 
 
@@ -15,7 +15,8 @@ def guild_dashboard(request):
     try:
         guild_member = GuildMembership.objects.get(player=player)
         guild = guild_member.guild
-#         guild_events = GuildEvent.objects.filter(guild=guild).order_by('-created_at')[:10]
+        # guild_events = GuildEvent.objects.filter(guild=guild).order_by('-created_at')[:10]
+        guild_events = []  # Placeholder until GuildEvent model is created
         members = GuildMembership.objects.filter(guild=guild).select_related('player__user')
     except GuildMembership.DoesNotExist:
         guild = None
@@ -24,10 +25,11 @@ def guild_dashboard(request):
         members = []
     
     # Invitaciones pendientes
-#     pending_invitations = GuildInvitation.objects.filter(
-        invited_player=player, 
-        status='pending'
-    )
+    # pending_invitations = GuildInvitation.objects.filter(
+    #     invited_player=player, 
+    #     status='pending'
+    # )
+    pending_invitations = []  # Placeholder until GuildInvitation model is created
     
     context = {
         'player': player,
@@ -126,17 +128,17 @@ def join_guild(request, guild_id):
             return redirect('guilds:dashboard')
         
         # Verificar si ya hay una invitación pendiente
-#         if GuildInvitation.objects.filter(guild=guild, invited_player=player, status='pending').exists():
-            messages.error(request, 'Ya tienes una solicitud pendiente para este gremio.')
-            return redirect('guilds:guild_list')
+        # if GuildInvitation.objects.filter(guild=guild, invited_player=player, status='pending').exists():
+        #     messages.error(request, 'Ya tienes una solicitud pendiente para este gremio.')
+        #     return redirect('guilds:guild_list')
         
         # Crear solicitud de unión (como invitación)
-#         invitation = GuildInvitation.objects.create(
-            guild=guild,
-            invited_by=guild.leader,  # El líder revisará la solicitud
-            invited_player=player,
-            status='pending'
-        )
+        # invitation = GuildInvitation.objects.create(
+        #     guild=guild,
+        #     invited_by=guild.leader,  # El líder revisará la solicitud
+        #     invited_player=player,
+        #     status='pending'
+        # )
         
         messages.success(request, f'Solicitud enviada al gremio "{guild.name}".')
         return redirect('guilds:guild_list')
@@ -172,11 +174,11 @@ def respond_invitation(request, invitation_id):
             invitation.save()
             
             # Crear evento
-#             GuildEvent.objects.create(
-                guild=invitation.guild,
-                event_type='member_joined',
-                description=f'{player.user.username} se unió al gremio'
-            )
+            # GuildEvent.objects.create(
+            #     guild=invitation.guild,
+            #     event_type='member_joined',
+            #     description=f'{player.user.username} se unió al gremio'
+            # )
             
             messages.success(request, f'¡Te has unido al gremio "{invitation.guild.name}"!')
             
@@ -216,11 +218,11 @@ def leave_guild(request):
                     guild.save()
             
             # Crear evento
-#             GuildEvent.objects.create(
-                guild=guild,
-                event_type='member_left',
-                description=f'{player.user.username} abandonó el gremio'
-            )
+            # GuildEvent.objects.create(
+            #     guild=guild,
+            #     event_type='member_left',
+            #     description=f'{player.user.username} abandonó el gremio'
+            # )
             
             # Eliminar membresía
             guild_member.delete()

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card p-4 mb-4">
+            <h5>👤 {{ player.user.username }}</h5>
+            <p class="mb-1">Nivel: {{ player.level }}</p>
+            <p class="mb-1">Oro: {{ player.gold|floatformat:0 }}</p>
+            <p class="mb-0">Experiencia: {{ player.experience }}/{{ player.next_level_exp }}</p>
+        </div>
+        
+        <div class="card p-4">
+            <h6>📊 Estadísticas</h6>
+            <small>Batallas Ganadas: {{ player.battles_won }}</small><br>
+            <small>Batallas Perdidas: {{ player.battles_lost }}</small><br>
+            <small>Regiones Exploradas: {{ player.regions_explored }}</small>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>🚢 Mis Barcos</h5>
+                    <p>Gestiona tu flota naval</p>
+                    <a href="#" class="btn btn-primary">Ver Barcos</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>🗺️ Exploración</h5>
+                    <p>Descubre nuevas regiones</p>
+                    <a href="#" class="btn btn-primary">Explorar</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>💰 Comercio</h5>
+                    <p>Intercambia recursos</p>
+                    <a href="#" class="btn btn-primary">Comerciar</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>⚔️ Combate</h5>
+                    <p>Batalla contra enemigos</p>
+                    <a href="#" class="btn btn-primary">Combatir</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>🏛️ Gremios</h5>
+                    <p>Únete o crea un gremio</p>
+                    <a href="#" class="btn btn-primary">Gremios</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h5>📋 Misiones</h5>
+                    <p>Completa misiones épicas</p>
+                    <a href="#" class="btn btn-primary">Misiones</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

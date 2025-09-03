@@ -13,7 +13,7 @@ from apps.exploration.models import Region
 def home(request):
     """Página principal del juego"""
     if request.user.is_authenticated:
-        return redirect('player_dashboard')
+        return redirect('players:dashboard')
     
     context = {
         'total_players': Player.objects.count(),

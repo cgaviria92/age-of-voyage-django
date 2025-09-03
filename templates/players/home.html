@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Bienvenido a Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-4">⚓ Age of Voyage</h1>
+            <p class="lead">Embárcate en una aventura épica en los mares. Construye tu flota, explora nuevas regiones, comercia con recursos y conquista los océanos.</p>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-4 text-center mb-3">
+                <div class="card p-4 h-100">
+                    <h3>🚢 {{ total_ships }}</h3>
+                    <p class="mb-0">Barcos Construidos</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-3">
+                <div class="card p-4 h-100">
+                    <h3>🗺️ {{ total_regions }}</h3>
+                    <p class="mb-0">Regiones Descubiertas</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-3">
+                <div class="card p-4 h-100">
+                    <h3>👥 {{ total_players }}</h3>
+                    <p class="mb-0">Jugadores Activos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5 text-center">
+            <h2 class="mb-4">¿Listo para comenzar tu aventura?</h2>
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{% url 'players:register' %}" class="btn btn-primary btn-lg me-3">
+                    Crear Cuenta
+                </a>
+                <a href="{% url 'players:login' %}" class="btn btn-outline-light btn-lg">
+                    Iniciar Sesión
+                </a>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h4>🌊 Explora los Océanos</h4>
+                    <p>Descubre nuevas islas, encuentra tesoros ocultos y enfrenta peligros en alta mar.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h4>⚔️ Combate Naval</h4>
+                    <p>Participa en épicas batallas navales contra piratas y otros jugadores.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h4>💰 Comercio</h4>
+                    <p>Establece rutas comerciales lucrativas entre diferentes puertos.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 h-100">
+                    <h4>🏛️ Gremios</h4>
+                    <p>Únete a un gremio o crea el tuyo propio para dominar los mares.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from django.db.models import Q
-from .models import Notification, NotificationTemplate
+from .models import Notification
 from apps.players.models import Player
 
 
@@ -242,14 +242,14 @@ def create_notification_from_template(recipient, template_name, context_data=Non
     Crear notificación basada en una plantilla.
     """
     try:
-        template = NotificationTemplate.objects.get(
-            name=template_name,
-            is_active=True
-        )
+        # template = NotificationTemplate.objects.get(
+        #     name=template_name,
+        #     is_active=True
+        # )
         
-        # Reemplazar variables en la plantilla
-        title = template.title
-        message = template.message
+        # Placeholder implementation until NotificationTemplate model is created
+        title = f"Notification: {template_name}"
+        message = f"This is a placeholder notification for {template_name}"
         
         if context_data:
             for key, value in context_data.items():
@@ -260,11 +260,11 @@ def create_notification_from_template(recipient, template_name, context_data=Non
             recipient=recipient,
             title=title,
             message=message,
-            notification_type=template.notification_type,
-            priority=template.priority
+            notification_type='system',  # Default value
+            priority='normal'  # Default value
         )
     
-    except NotificationTemplate.DoesNotExist:
+    except Exception:  # Generic exception until NotificationTemplate model is created
         # Si la plantilla no existe, crear notificación genérica
         return create_notification(
             recipient=recipient,
