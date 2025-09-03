@@ -4,9 +4,10 @@ from . import views
 app_name = 'trade'
 
 urlpatterns = [
-    path('', views.trade_hub, name='trade_hub'),
-    path('market/<int:region_id>/', views.market_view, name='market'),
-    path('routes/', views.trade_routes, name='routes'),
-    path('missions/', views.trade_missions, name='missions'),
-    path('start-mission/', views.start_trade_mission, name='start_mission'),
+    path('', views.trade_dashboard, name='trade_dashboard'),
+    path('posts/', views.trade_posts, name='trade_posts'),
+    path('routes/create/', views.create_trade_route, name='create_trade_route'),
+    path('routes/<int:route_id>/', views.trade_route_detail, name='trade_route_detail'),
+    path('routes/<int:route_id>/complete/', views.complete_trade, name='complete_trade'),
+    path('history/', views.trade_history, name='trade_history'),
 ]
