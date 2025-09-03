@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import models
-from .models import Battle, Fleet, CombatReport
+from .models import Battle, CombatTurn, PirateFleet, CombatEvent
 from apps.players.models import Player
 from apps.ships.models import Ship
 
@@ -16,14 +16,16 @@ def combat_dashboard(request):
         models.Q(attacker=player) | models.Q(defender=player),
         status='active'
     )
-    recent_reports = CombatReport.objects.filter(
-        models.Q(attacker=player) | models.Q(defender=player)
+    recent_events = CombatEvent.objects.filter(
+        battle__attacker=player
+    ).order_by('-created_at')[:10] | CombatEvent.objects.filter(
+        battle__defender=player
     ).order_by('-created_at')[:10]
     
     context = {
         'player': player,
         'active_battles': active_battles,
-        'recent_reports': recent_reports,
+        'recent_events': recent_events,
     }
     return render(request, 'combat/dashboard.html', context)
 
@@ -32,12 +34,12 @@ def combat_dashboard(request):
 def fleet_management(request):
     """Gestión de flotas."""
     player = get_object_or_404(Player, user=request.user)
-    fleets = Fleet.objects.filter(player=player)
+    ships = Ship.objects.filter(player=player)
     available_ships = Ship.objects.filter(player=player, status='docked')
     
     context = {
         'player': player,
-        'fleets': fleets,
+        'ships': ships,
         'available_ships': available_ships,
     }
     return render(request, 'combat/fleet_management.html', context)
@@ -45,35 +47,26 @@ def fleet_management(request):
 
 @login_required
 def create_fleet(request):
-    """Crear una nueva flota."""
+    """Organizar barcos para combate."""
     if request.method == 'POST':
         player = get_object_or_404(Player, user=request.user)
-        fleet_name = request.POST.get('fleet_name')
         ship_ids = request.POST.getlist('ship_ids')
         
-        if not fleet_name or not ship_ids:
-            messages.error(request, 'Debes proporcionar un nombre y seleccionar barcos.')
+        if not ship_ids:
+            messages.error(request, 'Debes seleccionar barcos.')
             return redirect('combat:fleet_management')
         
         try:
-            # Crear flota
-            fleet = Fleet.objects.create(
-                player=player,
-                name=fleet_name,
-                is_active=True
-            )
-            
-            # Agregar barcos a la flota
+            # Preparar barcos para combate
             ships = Ship.objects.filter(id__in=ship_ids, player=player, status='docked')
-            fleet.ships.set(ships)
             
             # Actualizar estado de los barcos
-            ships.update(status='fleet')
+            ships.update(status='combat_ready')
             
-            messages.success(request, f'¡Flota "{fleet_name}" creada exitosamente!')
+            messages.success(request, 'Barcos preparados para combate!')
             
         except Exception as e:
-            messages.error(request, 'Error al crear la flota.')
+            messages.error(request, 'Error al preparar los barcos.')
         
         return redirect('combat:fleet_management')
     
