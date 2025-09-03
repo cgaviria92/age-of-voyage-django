@@ -109,7 +109,7 @@ def register_player(request):
             if user:
                 login(request, user)
                 messages.success(request, f'¡Bienvenido a Age of Voyage, Capitán {captain_name}!')
-                return redirect('player_dashboard')
+                return redirect('players:dashboard')
     else:
         form = UserCreationForm()
     

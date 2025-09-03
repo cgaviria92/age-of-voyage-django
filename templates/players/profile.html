@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil de {{ player.captain_name }} - Age of Voyage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-4 mb-4">
+            <div class="text-center">
+                <h3>👤 {{ player.captain_name }}</h3>
+                <p class="text-muted">{{ player.user.username }}</p>
+                <hr>
+                <p><strong>Nivel:</strong> {{ player.level }}</p>
+                <p><strong>Oro:</strong> {{ player.gold|floatformat:0 }}</p>
+                <p><strong>Experiencia:</strong> {{ player.experience }}</p>
+                <p><strong>Reputación:</strong> {{ player.get_reputation_display }}</p>
+            </div>
+        </div>
+        
+        <div class="card p-4">
+            <h5>📊 Estadísticas</h5>
+            <p><strong>Batallas Ganadas:</strong> {{ player.total_battles_won }}</p>
+            <p><strong>Batallas Perdidas:</strong> {{ player.total_battles_lost }}</p>
+            <p><strong>Ganancia Total:</strong> {{ player.total_trade_profit|floatformat:0 }}</p>
+            <p><strong>Regiones Descubiertas:</strong> {{ player.regions_discovered }}</p>
+            <p><strong>Miembro desde:</strong> {{ player.created_at|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card p-4 mb-4">
+            <h4>⚡ Actividad Reciente</h4>
+            <p class="text-muted">Aquí se mostrarán las actividades recientes del jugador...</p>
+            <!-- TODO: Agregar actividades recientes -->
+        </div>
+        
+        <div class="card p-4 mb-4">
+            <h4>🏆 Logros</h4>
+            <p class="text-muted">Aquí se mostrarán los logros del jugador...</p>
+            <!-- TODO: Mostrar logros del jugador -->
+        </div>
+        
+        <div class="card p-4">
+            <h4>🚢 Mi Flota</h4>
+            <p class="text-muted">Aquí se mostrarán los barcos del jugador...</p>
+            <!-- TODO: Mostrar barcos del jugador -->
+        </div>
+    </div>
+</div>
+
+{% if user == player.user %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card p-4">
+            <h4>⚙️ Configuración de Cuenta</h4>
+            <a href="#" class="btn btn-outline-light me-2">Editar Perfil</a>
+            <a href="#" class="btn btn-outline-light">Cambiar Contraseña</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
