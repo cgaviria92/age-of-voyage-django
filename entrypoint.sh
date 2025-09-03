@@ -5,7 +5,15 @@ echo "🚢 Iniciando Age of Voyage con configuración automática..."
 # Función para esperar a que la base de datos esté lista
 wait_for_db() {
     echo "⏳ Esperando conexión a la base de datos..."
-    while ! python manage.py check --database default >/dev/null 2>&1; do
+    
+    # Usar las variables definidas en docker-compose
+    DB_HOST="db"
+    DB_USER="ageofvoyage"
+    DB_PASSWORD="voyage2025"
+    DB_NAME="ageofvoyage"
+    
+    # Verificar conexión usando postgres directamente
+    until PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c '\q' >/dev/null 2>&1; do
         echo "🔄 Base de datos no disponible, esperando..."
         sleep 3
     done
