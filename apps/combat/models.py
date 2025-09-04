@@ -30,6 +30,12 @@ class Battle(models.Model):
     attacker_ship = models.ForeignKey(Ship, on_delete=models.CASCADE, related_name='battles_as_attacker')
     defender_ship = models.ForeignKey(Ship, on_delete=models.CASCADE, related_name='battles_as_defender', null=True, blank=True)
     
+    # Datos del NPC (para batallas PvE)
+    npc_name = models.CharField(max_length=100, blank=True)
+    npc_health = models.IntegerField(default=100)
+    npc_max_health = models.IntegerField(default=100)
+    npc_attack_power = models.IntegerField(default=20)
+    
     # Características de la batalla
     battle_type = models.CharField(max_length=20, choices=BATTLE_TYPES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preparing')
@@ -47,6 +53,13 @@ class Battle(models.Model):
     
     # Log de la batalla
     battle_log = models.TextField(blank=True)
+    
+    @property
+    def npc_health_percentage(self):
+        """Porcentaje de salud del NPC"""
+        if self.npc_max_health <= 0:
+            return 0
+        return (self.npc_health / self.npc_max_health) * 100
     
     class Meta:
         verbose_name = "Batalla"

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Batalla - {{ battle.npc_name|default:"Combate Naval" }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-red-800 mb-6">
+        <i class="fas fa-crosshairs mr-2"></i>
+        {% if battle.battle_type == 'pve' %}
+            Batalla vs {{ battle.npc_name }}
+        {% else %}
+            {{ battle.attacker.captain_name }} vs {{ battle.defender.captain_name }}
+        {% endif %}
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Panel de Información de Batalla -->
+        <div class="lg:col-span-1">
+            <!-- Estado de Barcos -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-ship mr-2"></i>
+                    Estado de Barcos
+                </h2>
+
+                <!-- Tu Barco -->
+                <div class="border-2 border-blue-500 rounded-lg p-4 bg-blue-50 mb-4">
+                    <h3 class="font-semibold text-blue-800">{{ battle.attacker_ship.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ battle.attacker_ship.ship_type.name }}</p>
+                    <div class="mt-2">
+                        <div class="flex justify-between text-sm">
+                            <span>Salud:</span>
+                            <span class="{% if battle.attacker_ship.health_percentage < 30 %}text-red-600{% elif battle.attacker_ship.health_percentage < 70 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                                {{ battle.attacker_ship.health }}/{{ battle.attacker_ship.ship_type.max_health }}
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mt-1">
+                            <div class="bg-blue-500 h-3 rounded-full transition-all duration-300" style="width: {{ battle.attacker_ship.health_percentage }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barco Enemigo (NPC) -->
+                {% if battle.battle_type == 'pve' %}
+                    <div class="border-2 border-red-500 rounded-lg p-4 bg-red-50">
+                        <h3 class="font-semibold text-red-800">{{ battle.npc_name }}</h3>
+                        <p class="text-sm text-gray-600">Barco Pirata</p>
+                        <div class="mt-2">
+                            <div class="flex justify-between text-sm">
+                                <span>Salud:</span>
+                                <span class="{% if battle.npc_health_percentage < 30 %}text-red-600{% elif battle.npc_health_percentage < 70 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                                    {{ battle.npc_health }}/{{ battle.npc_max_health }}
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 mt-1">
+                                <div class="bg-red-500 h-3 rounded-full transition-all duration-300" style="width: {{ battle.npc_health_percentage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Controles de Batalla -->
+            {% if battle.status == 'in_progress' and is_player_turn %}
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-fist-raised mr-2"></i>
+                        Tu Turno
+                    </h2>
+
+                    <form method="post" action="{% url 'combat:execute_attack' battle.id %}">
+                        {% csrf_token %}
+                        <div class="space-y-3">
+                            <button type="submit" name="attack_type" value="normal" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition-colors">
+                                <i class="fas fa-bolt mr-2"></i>
+                                Ataque Normal
+                                <small class="block text-blue-100">Daño base</small>
+                            </button>
+
+                            <button type="submit" name="attack_type" value="heavy" class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition-colors">
+                                <i class="fas fa-bomb mr-2"></i>
+                                Ataque Pesado
+                                <small class="block text-orange-100">+50% daño</small>
+                            </button>
+
+                            <button type="submit" name="attack_type" value="precise" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg transition-colors">
+                                <i class="fas fa-crosshairs mr-2"></i>
+                                Ataque Preciso
+                                <small class="block text-purple-100">+20% daño</small>
+                            </button>
+
+                            <button type="submit" name="attack_type" value="ramming" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition-colors">
+                                <i class="fas fa-skull mr-2"></i>
+                                Embestida
+                                <small class="block text-red-100">+80% daño (arriesgado)</small>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            {% elif battle.status == 'in_progress' %}
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-clock mr-2"></i>
+                        Esperando...
+                    </h2>
+                    <p class="text-gray-600">Es el turno del enemigo.</p>
+                    <div class="mt-4 flex justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+                    </div>
+                </div>
+            {% elif battle.status == 'completed' %}
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-flag-checkered mr-2"></i>
+                        Batalla Completada
+                    </h2>
+                    {% if battle.winner == player %}
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <h3 class="text-green-800 font-semibold">¡Victoria!</h3>
+                            <p class="text-green-600">Has derrotado al enemigo.</p>
+                            <div class="mt-2 text-sm">
+                                <p class="text-green-700">+{{ battle.gold_stakes }} oro</p>
+                                <p class="text-green-700">+{{ battle.experience_reward }} XP</p>
+                            </div>
+                        </div>
+                    {% elif battle.winner %}
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <h3 class="text-red-800 font-semibold">Derrota</h3>
+                            <p class="text-red-600">El enemigo ha vencido.</p>
+                        </div>
+                    {% else %}
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-gray-800 font-semibold">Empate</h3>
+                            <p class="text-gray-600">La batalla terminó sin ganador.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Botón de Regreso -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <a href="{% url 'combat:arena' %}" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors block text-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Volver al Arena
+                </a>
+            </div>
+        </div>
+
+        <!-- Panel de Log de Batalla -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-scroll mr-2"></i>
+                    Log de Batalla
+                </h2>
+
+                {% if battle_turns %}
+                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                        {% for turn in battle_turns %}
+                            <div class="border-l-4 {% if turn.player == player %}border-blue-500{% elif turn.player %}border-red-500{% else %}border-gray-500{% endif %} pl-4 py-2">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-gray-800">{{ turn.description }}</p>
+                                        <p class="text-sm text-gray-500">Turno {{ turn.turn_number }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        {% if turn.damage_dealt > 0 %}
+                                            <span class="text-red-600 font-semibold">-{{ turn.damage_dealt }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-scroll text-6xl text-gray-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">¡La batalla está por comenzar!</h3>
+                        <p class="text-gray-500">Ejecuta tu primer ataque para comenzar el combate.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh para batallas activas -->
+{% if battle.status == 'in_progress' and not is_player_turn %}
+<script>
+    setTimeout(function() {
+        location.reload();
+    }, 3000);
+</script>
+{% endif %}
+{% endblock %}
