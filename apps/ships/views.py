@@ -105,8 +105,14 @@ def build_ship(request):
     # Crear el barco
     ship = Ship.objects.create(
         owner=player,
-        name=ship_name,
         ship_type=ship_type,
+        name=ship_name,
+        speed=ship_type.base_speed,
+        cargo_capacity=ship_type.base_cargo_capacity,
+        firepower=ship_type.base_firepower,
+        defense=ship_type.base_defense,
+        crew_capacity=ship_type.base_crew_capacity,
+        crew_count=ship_type.base_crew_capacity // 2,  # Empezar con media tripulación
         health=ship_type.max_health,
         status='idle'
     )
@@ -117,32 +123,6 @@ def build_ship(request):
     
     messages.success(request, f'¡Barco "{ship_name}" construido exitosamente!')
     return redirect('ships:fleet')
-        return redirect('ships:shipyard')
-    
-    # Obtener nombre del barco
-    ship_name = request.POST.get('ship_name', f'{ship_type.name} de {player.captain_name}')
-    
-    # Verificar que el nombre no esté en uso por este jugador
-    if Ship.objects.filter(owner=player, name=ship_name).exists():
-        messages.error(request, 'Ya tienes un barco con ese nombre.')
-        return redirect('ships:shipyard')
-    
-    # Crear el barco
-    ship = Ship.objects.create(
-        owner=player,
-        ship_type=ship_type,
-        name=ship_name,
-        speed=ship_type.base_speed,
-        cargo_capacity=ship_type.base_cargo_capacity,
-        firepower=ship_type.base_firepower,
-        defense=ship_type.base_defense,
-        crew_capacity=ship_type.base_crew_capacity,
-        hull_health=100,
-        crew_count=0,
-    )
-    
-    # Cobrar el costo
-    player.spend_gold(ship_type.purchase_cost)
     player.save()
     
     messages.success(request, f'¡Has adquirido el {ship.name} exitosamente!')

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.players.models import Player
 from apps.ships.models import Ship
@@ -35,6 +36,8 @@ class Battle(models.Model):
     npc_health = models.IntegerField(default=100)
     npc_max_health = models.IntegerField(default=100)
     npc_attack_power = models.IntegerField(default=20)
+    npc_defense = models.IntegerField(default=15)
+    npc_type = models.CharField(max_length=50, default='pirate')
     
     # Características de la batalla
     battle_type = models.CharField(max_length=20, choices=BATTLE_TYPES)
@@ -50,6 +53,7 @@ class Battle(models.Model):
     # Recompensas y pérdidas
     gold_stakes = models.IntegerField(default=0)
     experience_reward = models.IntegerField(default=0)
+    loot_earned = models.TextField(blank=True)  # JSON con el botín obtenido
     
     # Log de la batalla
     battle_log = models.TextField(blank=True)

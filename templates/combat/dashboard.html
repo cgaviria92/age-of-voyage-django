@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Combate{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-red-800 mb-6">
+        <i class="fas fa-sword mr-2"></i>
+        Panel de Combate
+    </h1>
+
+    <!-- Estadísticas de Combate -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <i class="fas fa-trophy text-yellow-500 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-semibold">Batallas Ganadas</h3>
+                    <p class="text-2xl font-bold text-gray-800">{{ stats.battles_won }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <i class="fas fa-skull text-red-500 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-semibold">Batallas Perdidas</h3>
+                    <p class="text-2xl font-bold text-gray-800">{{ stats.battles_lost }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center">
+                <i class="fas fa-chart-line text-blue-500 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-semibold">Total Batallas</h3>
+                    <p class="text-2xl font-bold text-gray-800">{{ stats.total_battles }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Opciones de Combate -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-swords mr-2"></i>
+                    Opciones de Combate
+                </h2>
+                
+                <div class="space-y-4">
+                    <a href="{% url 'combat:pirate_hunt' %}" class="block bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition-colors text-center">
+                        <i class="fas fa-skull-crossbones mr-2"></i>
+                        Caza de Piratas
+                    </a>
+                    
+                    <div class="bg-gray-100 px-4 py-3 rounded-lg text-center text-gray-600">
+                        <i class="fas fa-users mr-2"></i>
+                        Combate PvP (Próximamente)
+                    </div>
+                    
+                    <a href="{% url 'combat:history' %}" class="block bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition-colors text-center">
+                        <i class="fas fa-history mr-2"></i>
+                        Historial de Batallas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Barcos Disponibles -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-ship mr-2"></i>
+                    Barcos Disponibles
+                </h2>
+
+                {% if available_ships %}
+                    <div class="space-y-3">
+                        {% for ship in available_ships %}
+                            <div class="border rounded-lg p-3">
+                                <h4 class="font-medium text-gray-800">{{ ship.name }}</h4>
+                                <p class="text-sm text-gray-600">{{ ship.ship_type.name }}</p>
+                                <div class="mt-2">
+                                    <div class="flex justify-between text-xs">
+                                        <span>Salud:</span>
+                                        <span class="{% if ship.health_percentage < 30 %}text-red-600{% elif ship.health_percentage < 70 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                                            {{ ship.health }}/{{ ship.ship_type.max_health }}
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                        <div class="bg-{% if ship.health_percentage < 30 %}red{% elif ship.health_percentage < 70 %}yellow{% else %}green{% endif %}-500 h-2 rounded-full" style="width: {{ ship.health_percentage }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-ship text-4xl text-gray-400 mb-2"></i>
+                        <p class="text-gray-600">No tienes barcos disponibles</p>
+                        <a href="{% url 'ships:shipyard' %}" class="inline-block mt-2 text-blue-500 hover:text-blue-700">
+                            Construir Barco
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Batallas Activas y Historial -->
+        <div class="lg:col-span-2">
+            <!-- Batallas Activas -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-fire mr-2"></i>
+                    Batallas Activas
+                </h2>
+
+                {% if active_battles %}
+                    <div class="space-y-4">
+                        {% for battle in active_battles %}
+                            <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">
+                                            {% if battle.battle_type == 'pve' %}
+                                                vs {{ battle.npc_name }}
+                                            {% else %}
+                                                vs {{ battle.defender.captain_name }}
+                                            {% endif %}
+                                        </h3>
+                                        <p class="text-sm text-gray-600">
+                                            Barco: {{ battle.attacker_ship.name }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            Iniciada: {{ battle.started_at|date:"d/m/Y H:i" }}
+                                        </p>
+                                    </div>
+                                    <a href="{% url 'combat:battle_detail' battle.id %}" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                        Ver Batalla
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-6">
+                        <i class="fas fa-peace text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600">No tienes batallas activas</p>
+                        <a href="{% url 'combat:pirate_hunt' %}" class="inline-block mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            Iniciar Combate
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Historial Reciente -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-history mr-2"></i>
+                    Batallas Recientes
+                </h2>
+
+                {% if recent_battles %}
+                    <div class="space-y-3">
+                        {% for battle in recent_battles %}
+                            <div class="border rounded-lg p-3">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">
+                                            {% if battle.battle_type == 'pve' %}
+                                                vs {{ battle.npc_name }}
+                                            {% else %}
+                                                vs {{ battle.defender.captain_name }}
+                                            {% endif %}
+                                        </h4>
+                                        <p class="text-sm text-gray-600">
+                                            {{ battle.completed_at|date:"d/m/Y H:i" }}
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        {% if battle.winner == player %}
+                                            <span class="inline-block px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                                                Victoria
+                                            </span>
+                                        {% elif battle.winner %}
+                                            <span class="inline-block px-2 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                                                Derrota
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-block px-2 py-1 text-xs font-medium text-gray-800 bg-gray-100 rounded-full">
+                                                Empate
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'combat:history' %}" class="text-blue-500 hover:text-blue-700">
+                            Ver historial completo
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-6">
+                        <i class="fas fa-scroll text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600">No tienes batallas completadas</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

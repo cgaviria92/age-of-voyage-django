@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Caza de Piratas{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-red-800 mb-6">
+        <i class="fas fa-skull-crossbones mr-2"></i>
+        Caza de Piratas
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Selección de Barco -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-ship mr-2"></i>
+                    Seleccionar Barco
+                </h2>
+
+                {% if available_ships %}
+                    <form id="pirateHuntForm" method="post" action="{% url 'combat:start_pirate_battle' %}">
+                        {% csrf_token %}
+                        <div class="space-y-3 mb-4">
+                            {% for ship in available_ships %}
+                                <label class="block">
+                                    <input type="radio" name="ship_id" value="{{ ship.id }}" class="mr-2" required>
+                                    <div class="inline-block w-full border rounded-lg p-3 hover:bg-gray-50 cursor-pointer">
+                                        <h4 class="font-medium text-gray-800">{{ ship.name }}</h4>
+                                        <p class="text-sm text-gray-600">{{ ship.ship_type.name }}</p>
+                                        <div class="mt-2">
+                                            <div class="flex justify-between text-xs">
+                                                <span>Salud: {{ ship.health }}/{{ ship.ship_type.max_health }}</span>
+                                                <span>Poder: {{ ship.firepower }}</span>
+                                            </div>
+                                            <div class="flex justify-between text-xs">
+                                                <span>Defensa: {{ ship.defense }}</span>
+                                                <span>Tripulación: {{ ship.crew_count }}/{{ ship.ship_type.crew_capacity }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-ship text-4xl text-gray-400 mb-2"></i>
+                        <p class="text-gray-600">No tienes barcos disponibles</p>
+                        <a href="{% url 'ships:shipyard' %}" class="inline-block mt-2 text-blue-500 hover:text-blue-700">
+                            Construir Barco
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Información del Jugador -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-user mr-2"></i>
+                    Tu Información
+                </h2>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Nivel:</span>
+                        <span class="font-semibold">{{ player.level }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Oro:</span>
+                        <span class="font-semibold text-yellow-600">{{ player.gold|floatformat:0 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Habilidad de Combate:</span>
+                        <span class="font-semibold">{{ player.combat_skill }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Batallas Ganadas:</span>
+                        <span class="font-semibold text-green-600">{{ player.total_battles_won }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flotas Piratas Disponibles -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-flag-pirate mr-2"></i>
+                    Flotas Piratas Disponibles
+                </h2>
+
+                {% if pirate_fleets %}
+                    <div class="grid gap-4">
+                        {% for fleet in pirate_fleets %}
+                            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-red-700">{{ fleet.name }}</h3>
+                                        <p class="text-gray-600">{{ fleet.get_fleet_type_display }}</p>
+                                        {% if fleet.current_region %}
+                                            <p class="text-sm text-gray-500">Ubicación: {{ fleet.current_region.name }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="inline-block px-2 py-1 text-xs font-medium {% if fleet.level <= player.level %}text-green-800 bg-green-100{% elif fleet.level <= player.level + 1 %}text-yellow-800 bg-yellow-100{% else %}text-red-800 bg-red-100{% endif %} rounded-full">
+                                            Nivel {{ fleet.level }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Poder de Fuego:</span>
+                                            <span class="font-semibold">{{ fleet.firepower }}</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Defensa:</span>
+                                            <span class="font-semibold">{{ fleet.defense }}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Velocidad:</span>
+                                            <span class="font-semibold">{{ fleet.speed }}</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Tripulación:</span>
+                                            <span class="font-semibold">{{ fleet.crew_size }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded p-3 mb-3">
+                                    <h4 class="font-semibold text-sm mb-2">Recompensas por Victoria:</h4>
+                                    <div class="grid grid-cols-2 gap-2 text-sm">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-coins text-yellow-500 mr-1"></i>
+                                            <span>{{ fleet.gold_reward }} oro</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-star text-blue-500 mr-1"></i>
+                                            <span>{{ fleet.experience_reward }} XP</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if available_ships %}
+                                    <button type="button" 
+                                            onclick="selectFleet({{ fleet.id }})" 
+                                            class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        <i class="fas fa-sword mr-2"></i>
+                                        Atacar Flota
+                                    </button>
+                                {% else %}
+                                    <div class="w-full bg-gray-300 text-gray-600 px-4 py-2 rounded-lg text-center">
+                                        Necesitas un barco disponible
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-skull text-6xl text-gray-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No hay piratas disponibles</h3>
+                        <p class="text-gray-500">No se encontraron flotas piratas en tu nivel.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón para volver -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'combat:dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Volver al Panel de Combate
+        </a>
+    </div>
+</div>
+
+<script>
+function selectFleet(fleetId) {
+    const form = document.getElementById('pirateHuntForm');
+    const selectedShip = document.querySelector('input[name="ship_id"]:checked');
+    
+    if (!selectedShip) {
+        alert('Por favor selecciona un barco primero.');
+        return;
+    }
+    
+    // Crear input hidden para fleet_id
+    const fleetInput = document.createElement('input');
+    fleetInput.type = 'hidden';
+    fleetInput.name = 'fleet_id';
+    fleetInput.value = fleetId;
+    form.appendChild(fleetInput);
+    
+    // Enviar formulario
+    form.submit();
+}
+</script>
+{% endblock %}
