@@ -122,15 +122,8 @@ def build_ship(request):
     # Descontar oro
     player.gold -= ship_type.purchase_cost
     player.save()
-    player.gold -= ship_type.cost
-    player.save()
-    
     messages.success(request, f'¡Barco "{ship_name}" construido exitosamente!')
     return redirect('ships:fleet')
-    player.save()
-    
-    messages.success(request, f'¡Has adquirido el {ship.name} exitosamente!')
-    return redirect('ships:ship_detail', ship_id=ship.id)
 
 
 @login_required

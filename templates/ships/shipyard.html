@@ -49,25 +49,8 @@
                         <span class="badge bg-info mb-2">Ya tienes este barco</span>
                     {% endif %}
 
-                    {% if player.gold >= ship_type.purchase_cost and player_ships_count < max_ships and not (ship_type.id in owned_shiptype_ids) %}
-                        <button class="btn btn-primary w-100" onclick="buildShip({{ ship_type.id }}, '{{ ship_type.name }}')">
-                            🔨 Construir Barco
-                        </button>
-                    {% elif player.gold < ship_type.purchase_cost %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            💸 Oro insuficiente
-                        </button>
-                    {% elif player_ships_count >= max_ships %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            🚫 Límite de barcos alcanzado
-                        </button>
-                    {% else %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            🚫 Ya tienes este barco
-                        </button>
-                    {% comment %} Fix conditional: use 'not in' instead of 'not (...)' {% endcomment %}
                     {% if player.gold >= ship_type.purchase_cost and player_ships_count < max_ships and ship_type.id not in owned_shiptype_ids %}
-                        <button class="btn btn-primary w-100" onclick="buildShip({{ ship_type.id }}, '{{ ship_type.name }}')">
+                        <button class="btn btn-primary w-100" onclick="buildShip({{ ship_type.id }}, '{{ ship_type.name|escapejs }}')">
                             🔨 Construir Barco
                         </button>
                     {% elif player.gold < ship_type.purchase_cost %}
@@ -82,7 +65,6 @@
                         <button class="btn btn-secondary w-100" disabled>
                             🚫 Ya tienes este barco
                         </button>
-                    {% endif %}
                     {% endif %}
                 </div>
             </div>
