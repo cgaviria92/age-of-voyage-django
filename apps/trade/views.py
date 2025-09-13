@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import TradeRoute, Market, TradeMission, Resource, TradeMissionCargo, PriceHistory
+from .services.trade_service import TradeService
 from apps.players.models import Player
 from apps.ships.models import Ship
 
@@ -41,35 +42,27 @@ def create_trade_route(request):
         origin_id = request.POST.get('origin_id')
         destination_id = request.POST.get('destination_id')
         cargo_type = request.POST.get('cargo_type')
-        cargo_quantity = request.POST.get('cargo_quantity', 0)
-        
+        cargo_quantity = int(request.POST.get('cargo_quantity', 0))
         try:
             ship = Ship.objects.get(id=ship_id, player=player)
             origin = Market.objects.get(id=origin_id)
             destination = Market.objects.get(id=destination_id)
-            
             if ship.status != 'docked':
                 messages.error(request, 'El barco no está disponible.')
                 return redirect('trade:trade_dashboard')
-            
-            trade_route = TradeRoute.objects.create(
-                player=player,
-                ship=ship,
-                origin_region=origin.region,
-                destination_region=destination.region,
-                cargo_type=cargo_type,
-                cargo_quantity=int(cargo_quantity),
-                is_active=True
-            )
-            
-            ship.status = 'trading'
-            ship.save()
-            
-            messages.success(request, 'Ruta comercial creada exitosamente!')
-            
-        except (Ship.DoesNotExist, Market.DoesNotExist, ValueError):
-            messages.error(request, 'Error al crear la ruta comercial.')
-        
+            # Crear misión comercial usando TradeService
+            cargo_items = [{
+                'resource': Resource.objects.filter(category=cargo_type).first(),
+                'quantity': cargo_quantity,
+                'purchase_price': 10,  # Simulado
+                'total_cost': 10 * cargo_quantity
+            }]
+            route = TradeRoute.objects.filter(origin=origin.region, destination=destination.region).first()
+            mission = TradeService.create_trade_mission(player, ship, route, cargo_items)
+            TradeService.start_mission(mission)
+            messages.success(request, 'Misión comercial creada exitosamente!')
+        except Exception:
+            messages.error(request, 'Error al crear la misión comercial.')
         return redirect('trade:trade_dashboard')
     
     player = get_object_or_404(Player, user=request.user)
