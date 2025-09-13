@@ -199,11 +199,6 @@
                         <a href="{% url 'exploration:select_ship' ship.id %}" class="btn btn-primary btn-sm mt-2">Seleccionar</a>
                     </div>
                 </div>
-                {% empty %}
-                <div class="col-12">
-                    <p class="text-muted">No tienes barcos disponibles. <a href="{% url 'ships:shipyard' %}">Construye uno aquí</a>.</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
         {% else %}
