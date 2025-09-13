@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Comercio{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-blue-800 mb-6">
+        <i class="fas fa-coins mr-2"></i>
+        Panel de Comercio
+    </h1>
+
+    <h2 class="text-xl font-semibold mb-4">Rutas Comerciales Descubiertas</h2>
+    {% if active_routes %}
+        <ul class="mb-6">
+            {% for route in active_routes %}
+                <li class="mb-2 p-3 bg-white rounded shadow">
+                    <strong>{{ route.origin.name }} → {{ route.destination.name }}</strong>
+                    <span class="ml-2 text-sm text-gray-600">Distancia: {{ route.distance }} mn</span>
+                    <span class="ml-2 text-sm text-gray-600">Peligro: {{ route.danger_level }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500">No has descubierto rutas comerciales aún.</p>
+    {% endif %}
+
+    <h2 class="text-xl font-semibold mb-4">Misiones Comerciales Recientes</h2>
+    {% if recent_missions %}
+        <ul>
+            {% for mission in recent_missions %}
+                <li class="mb-2 p-3 bg-white rounded shadow">
+                    <strong>{{ mission.trade_route }}</strong>
+                    <span class="ml-2 text-sm text-gray-600">Barco: {{ mission.ship.name }}</span>
+                    <span class="ml-2 text-sm text-gray-600">Estado: {{ mission.get_status_display }}</span>
+                    <span class="ml-2 text-sm text-gray-600">Ganancia: {{ mission.final_profit }} oro</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500">No hay misiones comerciales recientes.</p>
+    {% endif %}
+</div>
+{% endblock %}

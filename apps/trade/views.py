@@ -11,7 +11,7 @@ from apps.ships.models import Ship
 @login_required
 def trade_dashboard(request):
     player = get_object_or_404(Player, user=request.user)
-    active_routes = TradeRoute.objects.filter(player=player, is_active=True)
+    active_routes = TradeRoute.objects.filter(discovered_by=player, is_active=True)
     recent_missions = TradeMission.objects.filter(player=player).order_by('-started_at')[:10]
     
     context = {
