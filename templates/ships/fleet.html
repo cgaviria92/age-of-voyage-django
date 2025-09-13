@@ -37,7 +37,7 @@
                     <div class="card p-4 h-100">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <h5>{{ ship.name }}</h5>
-                            <span class="badge bg-{% if ship.status == 'idle' %}success{% elif ship.status == 'sailing' %}warning{% else %}danger{% endif %}">
+                            <span class="badge bg-{% if ship.status == 'docked' %}success{% elif ship.status == 'sailing' %}warning{% else %}danger{% endif %}">
                                 {{ ship.get_status_display }}
                             </span>
                         </div>
@@ -46,30 +46,30 @@
                         
                         <div class="row mb-3">
                             <div class="col-6">
-                                <small><strong>⚔️ Ataque:</strong> {{ ship.ship_type.attack_power }}</small><br>
-                                <small><strong>🛡️ Defensa:</strong> {{ ship.ship_type.defense_power }}</small>
+                                <small><strong>⚔️ Ataque:</strong> {{ ship.firepower }}</small><br>
+                                <small><strong>🛡️ Defensa:</strong> {{ ship.defense }}</small>
                             </div>
                             <div class="col-6">
-                                <small><strong>💨 Velocidad:</strong> {{ ship.ship_type.speed }}</small><br>
-                                <small><strong>📦 Carga:</strong> {{ ship.ship_type.cargo_capacity }}</small>
+                                <small><strong>💨 Velocidad:</strong> {{ ship.speed }}</small><br>
+                                <small><strong>📦 Carga:</strong> {{ ship.cargo_capacity }}</small>
                             </div>
                         </div>
                         
                         <div class="mb-3">
                             <div class="progress mb-1">
-                                <div class="progress-bar bg-success" style="width: {{ ship.health_percentage }}%"></div>
+                                <div class="progress-bar bg-success" style="width: {{ ship.hull_health }}%"></div>
                             </div>
-                            <small>❤️ Salud: {{ ship.health }}/{{ ship.ship_type.max_health }}</small>
+                            <small>❤️ Salud: {{ ship.hull_health }}/100</small>
                         </div>
                         
                         <div class="mb-3">
-                            <small><strong>👥 Tripulación:</strong> {{ ship.crew_count }}/{{ ship.ship_type.crew_capacity }}</small>
+                            <small><strong>👥 Tripulación:</strong> {{ ship.crew_count }}/{{ ship.crew_capacity }}</small>
                         </div>
                         
-                        {% if ship.status == 'idle' %}
+                        {% if ship.status == 'docked' %}
                         <div class="btn-group w-100">
                             <a href="{% url 'ships:ship_detail' ship.id %}" class="btn btn-outline-light btn-sm">Ver Detalles</a>
-                            <a href="{% url 'exploration:start_exploration' ship.id %}" class="btn btn-warning btn-sm">🗺️ Explorar</a>
+                            <a href="{% url 'exploration:start_exploration' %}" class="btn btn-warning btn-sm">🗺️ Explorar</a>
                             <a href="{% url 'trade:start_trade' ship.id %}" class="btn btn-success btn-sm">💰 Comerciar</a>
                         </div>
                         {% elif ship.status == 'sailing' %}
