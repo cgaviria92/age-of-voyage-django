@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Acción de Combate{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-red-800 mb-6">
+        <i class="fas fa-sword mr-2"></i>
+        Acción de Combate
+    </h1>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <p>Acción procesada para la batalla: <strong>{{ battle.id }}</strong></p>
+        <a href="{% url 'combat:battle_detail' battle.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg mt-4 inline-block">
+            Volver al Detalle de Batalla
+        </a>
+    </div>
+</div>
+{% endblock %}

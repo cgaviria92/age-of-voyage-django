@@ -64,7 +64,15 @@ def pirate_hunt(request):
     player = get_object_or_404(Player, user=request.user)
     
     # Barcos disponibles
-    available_ships = Ship.objects.filter(
+def combat_action(request, battle_id):
+    battle = get_object_or_404(Battle, id=battle_id)
+    # Lógica básica de acción de combate
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        # Aquí puedes agregar la lógica de ataque, defensa, huida, etc.
+        # Por ahora solo redirige al detalle de la batalla
+        return redirect('combat:battle_detail', battle_id=battle.id)
+    return render(request, 'combat/action.html', {'battle': battle})
         owner=player, 
         status='idle',
         health__gt=0
