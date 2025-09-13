@@ -9,6 +9,7 @@ from apps.players.models import Player
 from apps.ships.models import Ship
 from apps.exploration.models import Region
 from .models import Battle, PirateFleet, CombatTurn
+from .services.battle_service import BattleService
 from .combat_utils import execute_combat_action, execute_npc_turn
 import random
 import json
@@ -102,24 +103,21 @@ def start_pirate_battle(request):
         messages.error(request, 'Necesitas más tripulación para el combate.')
         return redirect('combat:pirate_hunt')
     
-    # Crear batalla
-    battle = Battle.objects.create(
+    # Crear batalla usando BattleService
+    npc_data = {
+        'name': pirate_fleet.name,
+        'health': pirate_fleet.defense * 10,
+        'max_health': pirate_fleet.defense * 10,
+        'attack_power': pirate_fleet.firepower,
+        'defense': pirate_fleet.defense,
+        'type': pirate_fleet.fleet_type,
+    }
+    battle = BattleService.start_battle(
         attacker=player,
         attacker_ship=ship,
         battle_type='pve',
-        npc_name=pirate_fleet.name,
-        npc_health=pirate_fleet.defense * 10,
-        npc_max_health=pirate_fleet.defense * 10,
-        npc_attack_power=pirate_fleet.firepower,
-        npc_defense=pirate_fleet.defense,
-        npc_type=pirate_fleet.fleet_type,
-        gold_stakes=pirate_fleet.gold_reward,
-        experience_reward=pirate_fleet.experience_reward
+        npc_data=npc_data
     )
-    
-    # Iniciar batalla
-    battle.start_battle()
-    
     messages.success(request, f'¡Batalla contra {pirate_fleet.name} iniciada!')
     return redirect('combat:battle_detail', battle_id=battle.id)
 
@@ -169,43 +167,9 @@ def combat_action(request, battle_id):
         messages.error(request, 'Acción no válida.')
         return redirect('combat:battle_detail', battle_id=battle_id)
     
-    # Calcular resultado de la acción
-    result = execute_combat_action(battle, player, action_type)
-    
-    # Crear turno
-    turn_number = CombatTurn.objects.filter(battle=battle).count() + 1
-    CombatTurn.objects.create(
-        battle=battle,
-        turn_number=turn_number,
-        acting_player=player,
-        action_type=action_type,
-        damage_dealt=result['damage_dealt'],
-        damage_received=result['damage_received'],
-        description=result['description']
-    )
-    
-    # Verificar si la batalla ha terminado
-    if result['battle_ended']:
-        battle.resolve_battle()
-        messages.success(request, result['end_message'])
-    else:
-        # Turno del NPC
-        npc_result = execute_npc_turn(battle)
-        turn_number += 1
-        CombatTurn.objects.create(
-            battle=battle,
-            turn_number=turn_number,
-            acting_player=None,  # NPC
-            action_type='cannon',
-            damage_dealt=npc_result['damage_dealt'],
-            damage_received=0,
-            description=npc_result['description']
-        )
-        
-        if npc_result['battle_ended']:
-            battle.resolve_battle()
-            messages.warning(request, npc_result['end_message'])
-    
+    # Procesar turno usando BattleService
+    turn = BattleService.process_turn(battle, player, action_type)
+    # Aquí podrías agregar lógica para el turno del NPC y resolución de batalla
     return redirect('combat:battle_detail', battle_id=battle_id)
 
 
