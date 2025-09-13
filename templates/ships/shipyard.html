@@ -85,11 +85,6 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <input type="hidden" id="ship_type_id" name="ship_type_id">
-                    <div class="mb-3">
-                        <label for="ship_name" class="form-label">Nombre del barco:</label>
-                        <input type="text" class="form-control" id="ship_name" name="ship_name" required>
-                        <div class="form-text">Elige un nombre épico para tu nuevo barco</div>
-                    </div>
                     <p>Tipo de barco: <strong id="selected_ship_type"></strong></p>
                 </div>
                 <div class="modal-footer">

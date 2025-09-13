@@ -15,8 +15,8 @@ def ship_list(request):
     
     # Estadísticas de la flota
     total_crew = sum(ship.crew_members.count() for ship in ships)
-    total_combat_power = sum(ship.ship_type.attack_power + ship.ship_type.defense_power for ship in ships)
-    total_cargo_capacity = sum(ship.ship_type.cargo_capacity for ship in ships)
+    total_combat_power = sum(ship.ship_type.base_firepower + ship.ship_type.base_defense for ship in ships)
+    total_cargo_capacity = sum(ship.ship_type.base_cargo_capacity for ship in ships)
     average_speed = ships.aggregate(models.Avg('speed'))['speed__avg'] or 0
     
     context = {
@@ -79,32 +79,32 @@ def build_ship(request):
     
     player = get_object_or_404(Player, user=request.user)
     ship_type_id = request.POST.get('ship_type_id')
-    ship_name = request.POST.get('ship_name')
-    
-    if not ship_type_id or not ship_name:
+    if not ship_type_id:
         messages.error(request, 'Datos incompletos.')
         return redirect('ships:shipyard')
-    
+
     ship_type = get_object_or_404(ShipType, id=ship_type_id)
-    
+
     # Verificaciones
     if Ship.objects.filter(owner=player).count() >= 10:
         messages.error(request, 'Has alcanzado el límite máximo de barcos.')
         return redirect('ships:shipyard')
-    
+
     if player.level < ship_type.required_level:
         messages.error(request, f'Necesitas nivel {ship_type.required_level} para construir este barco.')
         return redirect('ships:shipyard')
-    
+
     if player.gold < ship_type.purchase_cost:
         messages.error(request, 'No tienes suficiente oro para construir este barco.')
         return redirect('ships:shipyard')
-    
+
+    # Nombre automático: "{player.captain_name} - {ship_type.name}"
+    ship_name = f"{player.captain_name} - {ship_type.name}"
     # Verificar que el nombre no esté en uso
     if Ship.objects.filter(owner=player, name=ship_name).exists():
-        messages.error(request, 'Ya tienes un barco con ese nombre.')
+        messages.error(request, 'Ya tienes un barco de este tipo.')
         return redirect('ships:shipyard')
-    
+
     # Crear el barco
     ship = Ship.objects.create(
         owner=player,
