@@ -93,7 +93,7 @@ def build_ship(request):
         messages.error(request, f'Necesitas nivel {ship_type.required_level} para construir este barco.')
         return redirect('ships:shipyard')
     
-    if player.gold < ship_type.cost:
+    if player.gold < ship_type.purchase_cost:
         messages.error(request, 'No tienes suficiente oro para construir este barco.')
         return redirect('ships:shipyard')
     
@@ -113,11 +113,12 @@ def build_ship(request):
         defense=ship_type.base_defense,
         crew_capacity=ship_type.base_crew_capacity,
         crew_count=ship_type.base_crew_capacity // 2,  # Empezar con media tripulación
-        health=ship_type.max_health,
-        status='idle'
+        hull_health=100,
+        status='docked'
     )
-    
     # Descontar oro
+    player.gold -= ship_type.purchase_cost
+    player.save()
     player.gold -= ship_type.cost
     player.save()
     
