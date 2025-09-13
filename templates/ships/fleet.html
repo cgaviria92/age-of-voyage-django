@@ -70,7 +70,7 @@
                         <div class="btn-group w-100">
                             <a href="{% url 'ships:ship_detail' ship.id %}" class="btn btn-outline-light btn-sm">Ver Detalles</a>
                             <a href="{% url 'exploration:start_exploration' %}" class="btn btn-warning btn-sm">🗺️ Explorar</a>
-                            <a href="{% url 'trade:start_trade' ship.id %}" class="btn btn-success btn-sm">💰 Comerciar</a>
+                            <a href="{% url 'trade:trade_dashboard' %}" class="btn btn-success btn-sm">💰 Comerciar</a>
                         </div>
                         {% elif ship.status == 'sailing' %}
                         <div class="text-center">
