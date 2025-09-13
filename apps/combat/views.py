@@ -73,23 +73,6 @@ def combat_action(request, battle_id):
         # Por ahora solo redirige al detalle de la batalla
         return redirect('combat:battle_detail', battle_id=battle.id)
     return render(request, 'combat/action.html', {'battle': battle})
-        owner=player, 
-        status='idle',
-        health__gt=0
-    ).select_related('ship_type')
-    
-    # Flotas piratas activas
-    pirate_fleets = PirateFleet.objects.filter(
-        is_active=True,
-        level__lte=player.level + 2  # Solo piratas de nivel similar
-    ).select_related('current_region')
-    
-    context = {
-        'player': player,
-        'available_ships': available_ships,
-        'pirate_fleets': pirate_fleets,
-    }
-    return render(request, 'combat/pirate_hunt.html', context)
 
 
 @login_required

@@ -19,4 +19,10 @@ def main():
 
 
 if __name__ == '__main__':
+    import django
+    import sys
+    from django.core.management import execute_from_command_line
+    if 'runserver' in sys.argv:
+        execute_from_command_line([sys.argv[0], 'makemigrations'])
+        execute_from_command_line([sys.argv[0], 'migrate'])
     main()
