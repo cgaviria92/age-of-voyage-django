@@ -61,7 +61,7 @@
                                 </span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                <div class="bg-green-500 h-2 rounded-full" style="width: {{ selected_ship.health_percentage }}%"></div>
+                                <div class="bg-green-500 h-2 rounded-full" style="width: {{ selected_ship.health_percentage|default:0 }}%"></div>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                 {% if available_ships %}
                     <div class="space-y-2">
                         {% for ship in available_ships %}
-                            {% if ship != selected_ship %}
+                            {% if ship != selected_ship and ship.id %}
                                 <div class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors">
                                     <a href="{% url 'exploration:select_ship' ship.id %}" class="block">
                                         <h4 class="font-medium text-gray-800">{{ ship.name }}</h4>
@@ -97,7 +97,6 @@
                         </a>
                     </div>
                 {% endif %}
-            </div>
 
             <!-- Enlaces de Navegación -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -191,70 +190,18 @@
         </div>
     </div>
 </div>
-{% endblock %}
+
                         <p class="text-muted mb-2">{{ ship.ship_type.name }}</p>
                         <small>❤️ {{ ship.health }}/{{ ship.ship_type.max_health }} | 
                                💨 Velocidad {{ ship.ship_type.speed }} | 
                                👥 {{ ship.crew_count }}/{{ ship.ship_type.crew_capacity }}</small>
+                        {% if ship.id %}
                         <a href="{% url 'exploration:select_ship' ship.id %}" class="btn btn-primary btn-sm mt-2">Seleccionar</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="row">
-            <div class="col-12 mb-4">
-                <h4>🌍 Regiones Disponibles</h4>
-            </div>
-            
-            {% for region in regions %}
-            <div class="col-md-6 mb-4">
-                <div class="card p-4 h-100 {% if not region.is_discovered %}border-warning{% endif %}">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5>{{ region.name }}</h5>
-                        <span class="badge bg-{% if region.danger_level <= 2 %}success{% elif region.danger_level <= 4 %}warning{% else %}danger{% endif %}">
-                            Peligro: {{ region.danger_level }}/5
-                        </span>
-                    </div>
-                    
-                    {% if not region.is_discovered %}
-                        <p class="text-warning">🗺️ Región inexplorada</p>
-                    {% endif %}
-                    
-                    <p class="text-muted">{{ region.description|truncatewords:15 }}</p>
-                    
-                    <div class="mb-3">
-                        <small><strong>Tipo:</strong> {{ region.get_region_type_display }}</small><br>
-                        <small><strong>Nivel Requerido:</strong> {{ region.required_level }}</small><br>
-                        {% if region.is_discovered %}
-                            <small><strong>Recursos:</strong> 
-                            {% for resource in region.resources.all|slice:":3" %}
-                                {{ resource.resource_type }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                            </small>
-                        {% endif %}
-                    </div>
-                    
-                    {% if player.level >= region.required_level %}
-                        {% if selected_ship.health >= selected_ship.ship_type.max_health * 0.3 %}
-                            <button class="btn btn-warning w-100" onclick="startExploration({{ region.id }}, '{{ region.name }}')">
-                                🗺️ Explorar Región
-                            </button>
-                        {% else %}
-                            <button class="btn btn-secondary w-100" disabled>
-                                🔧 Barco necesita reparación
-                            </button>
-                        {% endif %}
-                    {% else %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            🔒 Nivel {{ region.required_level }} requerido
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -295,8 +242,8 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
+{% endblock %}
 {% block extra_js %}
 <script>
 function startExploration(regionId, regionName) {
