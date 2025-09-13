@@ -59,7 +59,7 @@ def shipyard(request):
     # Barcos que el jugador ya posee
     player_ships = Ship.objects.filter(owner=player)
     player_ships_count = player_ships.count()
-    owned_shiptype_ids = set(player_ships.values_list('ship_type_id', flat=True))
+    owned_shiptype_ids = list(player_ships.values_list('ship_type_id', flat=True))
 
     context = {
         'ship_types': ship_types,
