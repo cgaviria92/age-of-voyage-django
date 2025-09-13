@@ -55,15 +55,18 @@ def shipyard(request):
     
     # Barcos disponibles según el nivel del jugador
     ship_types = ShipType.objects.filter(required_level__lte=player.level)
-    
+
     # Barcos que el jugador ya posee
-    player_ships_count = Ship.objects.filter(owner=player).count()
-    
+    player_ships = Ship.objects.filter(owner=player)
+    player_ships_count = player_ships.count()
+    owned_shiptype_ids = set(player_ships.values_list('ship_type_id', flat=True))
+
     context = {
         'ship_types': ship_types,
         'player_ships_count': player_ships_count,
         'player': player,
         'max_ships': 10,  # Límite de barcos por jugador
+        'owned_shiptype_ids': owned_shiptype_ids,
     }
     return render(request, 'ships/shipyard.html', context)
 

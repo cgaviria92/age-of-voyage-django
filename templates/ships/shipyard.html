@@ -27,35 +27,43 @@
                 <div class="card p-4 h-100">
                     <h5>{{ ship_type.name }}</h5>
                     <p class="text-muted">{{ ship_type.description }}</p>
-                    
+
                     <div class="row mb-3">
                         <div class="col-6">
-                            <small><strong>⚔️ Ataque:</strong> {{ ship_type.attack_power }}</small><br>
-                            <small><strong>🛡️ Defensa:</strong> {{ ship_type.defense_power }}</small><br>
-                            <small><strong>❤️ Salud:</strong> {{ ship_type.max_health }}</small>
+                            <small><strong>⚔️ Ataque:</strong> {{ ship_type.base_firepower }}</small><br>
+                            <small><strong>🛡️ Defensa:</strong> {{ ship_type.base_defense }}</small><br>
+                            <small><strong>❤️ Salud:</strong> 100</small>
                         </div>
                         <div class="col-6">
-                            <small><strong>💨 Velocidad:</strong> {{ ship_type.speed }}</small><br>
-                            <small><strong>📦 Carga:</strong> {{ ship_type.cargo_capacity }}</small><br>
-                            <small><strong>👥 Tripulación:</strong> {{ ship_type.crew_capacity }}</small>
+                            <small><strong>💨 Velocidad:</strong> {{ ship_type.base_speed }}</small><br>
+                            <small><strong>📦 Carga:</strong> {{ ship_type.base_cargo_capacity }}</small><br>
+                            <small><strong>👥 Tripulación:</strong> {{ ship_type.base_crew_capacity }}</small>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <h6>💰 Precio: {{ ship_type.cost|floatformat:0 }} oro</h6>
+                        <h6>💰 Precio: {{ ship_type.purchase_cost|floatformat:0 }} oro</h6>
                     </div>
-                    
-                    {% if player.gold >= ship_type.cost and player_ships_count < max_ships %}
+
+                    {% if ship_type.id in owned_shiptype_ids %}
+                        <span class="badge bg-info mb-2">Ya tienes este barco</span>
+                    {% endif %}
+
+                    {% if player.gold >= ship_type.purchase_cost and player_ships_count < max_ships and not (ship_type.id in owned_shiptype_ids) %}
                         <button class="btn btn-primary w-100" onclick="buildShip({{ ship_type.id }}, '{{ ship_type.name }}')">
                             🔨 Construir Barco
                         </button>
-                    {% elif player.gold < ship_type.cost %}
+                    {% elif player.gold < ship_type.purchase_cost %}
                         <button class="btn btn-secondary w-100" disabled>
                             💸 Oro insuficiente
                         </button>
-                    {% else %}
+                    {% elif player_ships_count >= max_ships %}
                         <button class="btn btn-secondary w-100" disabled>
                             🚫 Límite de barcos alcanzado
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            🚫 Ya tienes este barco
                         </button>
                     {% endif %}
                 </div>
