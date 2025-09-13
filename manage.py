@@ -19,10 +19,13 @@ def main():
 
 
 if __name__ == '__main__':
+    import os
     import django
     import sys
     from django.core.management import execute_from_command_line
     if 'runserver' in sys.argv:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+        django.setup()
         execute_from_command_line([sys.argv[0], 'makemigrations'])
         execute_from_command_line([sys.argv[0], 'migrate'])
     main()
