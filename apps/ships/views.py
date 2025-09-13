@@ -17,7 +17,7 @@ def ship_list(request):
     total_crew = sum(ship.crew_members.count() for ship in ships)
     total_combat_power = sum(ship.ship_type.attack_power + ship.ship_type.defense_power for ship in ships)
     total_cargo_capacity = sum(ship.ship_type.cargo_capacity for ship in ships)
-    average_speed = ships.aggregate(models.Avg('ship_type__speed'))['ship_type__speed__avg'] or 0
+    average_speed = ships.aggregate(models.Avg('speed'))['speed__avg'] or 0
     
     context = {
         'ships': ships,
